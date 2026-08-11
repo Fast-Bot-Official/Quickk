@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quickk! - Realtime Anonymous Messaging</title>
+    <title>Quickk! | Instant Anonymous Messaging</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,292 +25,296 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
 
-        /* Utilities */
         .hidden { display: none !important; }
-        .btn { cursor: pointer; padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; }
+        .btn { cursor: pointer; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; }
         .btn-primary { background: var(--primary); color: white; width: 100%; }
         .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-danger { background: var(--error); color: white; }
+        .btn-danger:hover { background: #dc2626; }
         .btn-secondary { background: #e2e8f0; color: var(--text-main); }
         .btn-secondary:hover { background: #cbd5e1; }
-        .btn-danger { background: #fee2e2; color: #b91c1c; }
-        .btn-danger:hover { background: #fca5a5; }
-        .btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-        /* Toasts */
-        #toast-container { position: fixed; bottom: 25px; right: 25px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: white; color: var(--text-main); padding: 14px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 280px; border-left: 4px solid var(--primary); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        .toast.success { border-color: var(--success); }
-        .toast.error { border-color: var(--error); }
+        .btn:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
 
         /* Navigation */
-        nav { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .menu-btn { background: none; border: none; font-size: 1.3rem; color: var(--text-main); cursor: pointer; padding: 8px; border-radius: 8px; }
-        .menu-btn:hover { background: #f1f5f9; }
-
-        /* Modals & Unskippable Drawers */
-        .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .drawer-card { background: white; border-radius: 20px; width: 100%; max-width: 500px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; display: flex; flex-direction: column; }
-        .drawer-content { overflow-y: auto; margin: 20px 0; padding-right: 5px; flex: 1; }
+        nav { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+        .hamburger-btn { font-size: 1.3rem; color: var(--text-main); cursor: pointer; background: transparent; border: none; padding: 8px; border-radius: 8px; transition: background 0.2s; }
+        .hamburger-btn:hover { background: #f1f5f9; }
         
         /* Sidebar */
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1050; backdrop-filter: blur(2px); }
-        .sidebar-overlay.active { opacity: 1; visibility: visible; }
-        .sidebar { position: fixed; left: calc(-1 * var(--sidebar-width)); top: 0; width: var(--sidebar-width); height: 100%; background: white; box-shadow: 5px 0 25px rgba(0,0,0,0.1); z-index: 1060; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px 20px; display: flex; flex-direction: column; }
+        .sidebar { position: fixed; left: calc(-1 * var(--sidebar-width)); top: 0; width: var(--sidebar-width); height: 100%; background: white; box-shadow: 5px 0 25px rgba(0,0,0,0.1); z-index: 1001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar.active { left: 0; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; backdrop-filter: blur(2px); }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar-header { padding: 24px 20px 15px; border-bottom: 1px solid #e2e8f0; }
+        .sidebar-content { padding: 20px; overflow-y: auto; flex: 1; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #e2e8f0; background: #fafafa; }
 
-        .convo-section { margin-top: 15px; flex: 1; overflow-y: auto; }
-        .convo-item { padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; background: #f8fafc; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
-        .convo-item:hover { background: #e2e8f0; }
+        .my-code-card { background: #eff6ff; border: 1px dashed var(--primary); padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .my-code-card span { font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; color: var(--primary); }
 
-        /* Full Screen UI / Landing */
-        .landing-container { max-width: 450px; margin: 80px auto; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin: 20px 0 10px; }
+        .convo-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .convo-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+        .convo-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .convo-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .status-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .status-dot.offline { background: var(--text-muted); }
+        .convo-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .convo-code { font-size: 0.75rem; color: var(--text-muted); }
+        .convo-actions { display: flex; gap: 6px; }
+        .action-icon { color: var(--text-muted); padding: 6px; border-radius: 6px; transition: 0.2s; }
+        .action-icon:hover { color: var(--primary); background: #e2e8f0; }
+        .action-icon.active-fav { color: #f59e0b; }
 
-        /* Main Dashboard */
-        .dashboard-container { max-width: 800px; margin: 40px auto; text-align: center; padding: 0 20px; }
-        .dashboard-card { background: white; padding: 40px 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        /* Full Screen Modals & Drawers */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); padding: 20px; }
+        .drawer-box { background: white; width: 100%; max-width: 500px; border-radius: 20px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 90vh; display: flex; flex-direction: column; }
+        .drawer-body { overflow-y: auto; margin: 20px 0; padding-right: 5px; flex: 1; }
 
-        /* Code Banner Card */
-        .code-display-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; text-align: left; }
+        /* Full Chat Modal */
+        .chat-container { width: 100%; max-width: 700px; height: 85vh; background: white; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .chat-header { padding: 16px 20px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .chat-user-details { display: flex; align-items: center; gap: 12px; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
+        
+        .msg-bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; word-break: break-word; position: relative; }
+        .msg-sent { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-received { background: white; border: 1px solid #e2e8f0; color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-time { font-size: 0.68rem; margin-top: 4px; opacity: 0.75; text-align: right; }
+        .msg-img { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 6px; cursor: pointer; }
+        .msg-audio { margin-top: 6px; max-width: 100%; }
 
-        /* Chat Window Drawer / Modal */
-        .chat-overlay { position: fixed; inset: 0; background: white; z-index: 1500; display: flex; flex-direction: column; }
-        .chat-header { padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: white; }
-        .chat-body { flex: 1; overflow-y: auto; padding: 20px; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
-        .chat-footer { padding: 15px 20px; background: white; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-bar { padding: 15px; background: white; border-top: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; }
+        .chat-input { flex: 1; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 25px; outline: none; font-size: 0.95rem; }
+        .chat-input:focus { border-color: var(--primary); }
 
-        .message-bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; position: relative; word-wrap: break-word; }
-        .message-bubble.me { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .message-bubble.peer { background: white; color: var(--text-main); align-self: flex-start; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
-        .msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; text-align: right; }
+        /* Dashboards */
+        .dashboard { max-width: 800px; margin: 60px auto; padding: 0 20px; text-align: center; }
+        .hero-card { background: white; border-radius: 24px; padding: 50px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
 
-        .indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .online { background: var(--success); box-shadow: 0 0 8px var(--success); }
-        .offline { background: var(--text-muted); }
+        /* Input Controls */
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.88rem; color: var(--text-muted); }
+        input[type="text"] { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 10px; outline: none; transition: 0.2s; font-size: 1rem; }
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
 
-        /* Maintenance Screen */
-        #maintenance-screen { position: fixed; inset: 0; background: #0f172a; color: white; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        /* Toasts */
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: white; color: var(--text-main); padding: 14px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; min-width: 280px; border-left: 4px solid var(--primary); animation: slideIn 0.3s ease; }
+        .toast.error { border-color: var(--error); }
+        .toast.success { border-color: var(--success); }
 
-        /* Animations */
+        /* Voice Recorder Controls */
+        .mic-btn { width: 42px; height: 42px; border-radius: 50%; border: none; background: #f1f5f9; color: var(--text-main); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .mic-btn.recording { background: var(--error); color: white; animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        /* Voice Recording Pulse */
-        .recording-pulse { animation: pulse 1s infinite; color: var(--error) !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div id="toast-container"></div>
-
-    <!-- Maintenance Overlay -->
-    <div id="maintenance-screen" class="hidden">
-        <i class="fas fa-screwdriver-wrench" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
-        <h1 style="font-size: 2rem; margin-bottom: 10px;">Quickk! is under maintenance</h1>
-        <p style="color: #94a3b8; max-width: 400px;">We are currently upgrading our systems for faster emergency messaging. Please check back shortly.</p>
+    <!-- Maintenance Screen -->
+    <div id="maintenance-screen" class="modal-overlay hidden" style="z-index: 9999; background: #0f172a;">
+        <div style="text-align: center; color: white; max-width: 450px; padding: 40px;">
+            <i class="fas fa-screwdriver-wrench" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
+            <h1 style="font-size: 2rem; margin-bottom: 10px;">Under Maintenance</h1>
+            <p style="color: #94a3b8;">Quickk! is currently undergoing scheduled system updates for better performance. Please check back shortly.</p>
+        </div>
     </div>
 
-    <!-- Sidebar Overlay -->
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="hamburger-btn" class="hamburger-btn hidden" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo"><i class="fas fa-bolt"></i> Quickk!</div>
+        </div>
+        <div id="user-badge" class="hidden" style="font-size: 0.88rem; font-weight: 600; background: #eff6ff; color: var(--primary); padding: 6px 14px; border-radius: 20px;">
+            <i class="fas fa-user-shield"></i> <span id="nav-display-name">Anonymous</span>
+        </div>
+    </nav>
+
+    <!-- Sidebar Drawer -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-    
-    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="font-weight: 800; color: var(--primary);"><i class="fas fa-bolt"></i> Quickk!</h2>
-            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-xmark"></i></button>
+        <div>
+            <div class="sidebar-header">
+                <h3 style="margin-bottom: 10px;">Quickk! Emergency Chat</h3>
+                <div class="my-code-card">
+                    <div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">My Friend Code</div>
+                        <span id="my-code-display">--------</span>
+                    </div>
+                    <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="copyCode()"><i class="fas fa-copy"></i></button>
+                </div>
+                <button class="btn btn-primary" onclick="openEnterCodeDrawer()">
+                    <i class="fas fa-paper-plane"></i> Enter 8 Digit Code
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="section-title"><i class="fas fa-star" style="color: #f59e0b;"></i> Favorite Conversations</div>
+                <ul class="convo-list" id="favorite-convos-list"></ul>
+
+                <div class="section-title"><i class="fas fa-comments"></i> My Conversations</div>
+                <ul class="convo-list" id="my-convos-list"></ul>
+            </div>
         </div>
 
-        <button class="btn btn-primary" style="margin-bottom: 20px;" onclick="openCodeEntryDrawer()">
-            <i class="fas fa-key"></i> Enter 8 Digit Code
-        </button>
-
-        <div class="convo-section">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 8px;">
-                <i class="fas fa-star" style="color: var(--warning);"></i> Favorite Conversations
-            </h4>
-            <div id="fav-conversations-list"></div>
-
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-top: 20px; margin-bottom: 8px;">
-                <i class="fas fa-comments"></i> My Conversations
-            </h4>
-            <div id="my-conversations-list"></div>
-        </div>
-
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn btn-danger" onclick="handleLogout()"><i class="fas fa-right-from-bracket"></i> Logout</button>
-            <a href="https://fast-bot-official.github.io/FluxionarySupport//" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+        <div class="sidebar-footer">
+            <button class="btn btn-danger" style="width: 100%; margin-bottom: 10px;" onclick="handleLogout()">
+                <i class="fas fa-right-from-bracket"></i> Logout & Clear Data
+            </button>
+            <a href="https://fast-bot-official.github.io/FluxionarySupport//" target="_blank" class="btn btn-secondary" style="width: 100%; text-decoration: none; box-sizing: border-box;">
                 <i class="fas fa-bug"></i> Report Bugs
             </a>
         </div>
     </div>
 
-    <!-- Navigation Header -->
-    <nav>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <button id="nav-menu-btn" class="menu-btn hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <div class="logo"><i class="fas fa-bolt"></i> Quickk!</div>
-        </div>
-        <div id="nav-profile-info" class="hidden" style="display: flex; align-items: center; gap: 12px;">
-            <span id="my-display-name" style="font-weight: 600;">Anonymous</span>
-            <span id="my-code-badge" style="background: #e0e7ff; color: #4338ca; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; font-weight: 700;">--------</span>
-        </div>
-    </nav>
-
-    <!-- Sign Up View -->
-    <div id="landing-view" class="landing-container">
-        <div style="width: 70px; height: 70px; background: #dbeafe; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
-            <i class="fas fa-bolt" style="font-size: 2rem; color: var(--primary);"></i>
-        </div>
-        <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;">Quickk! Messaging</h1>
-        <p style="color: var(--text-muted); margin-bottom: 30px;">Instant real-time emergency messaging platform. Completely anonymous and encrypted context.</p>
-        <button id="signup-btn" class="btn btn-primary" style="padding: 16px;" onclick="handleSignUp()">
-            <i class="fas fa-user-plus"></i> Sign Up Anonymously
-        </button>
-    </div>
-
-    <!-- Main Dashboard View -->
-    <div id="dashboard-view" class="dashboard-container hidden">
-        
-        <!-- Code Display Section -->
-        <div class="code-display-card">
-            <div>
-                <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">Your Unique 8-Digit Code</span>
-                <div id="dash-my-code" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: 3px; margin-top: 2px;">--------</div>
-            </div>
-            <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="copyMyCode()">
-                <i class="fas fa-copy"></i> Copy Code
-            </button>
-        </div>
-
-        <div class="dashboard-card">
-            <i class="fas fa-paper-plane" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
-            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 15px;">Start chatting instantly</h1>
-            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 30px auto;">Open the sidebar on the top left or enter a friend's 8-digit unique code to establish a direct anonymous connection.</p>
-            <button class="btn btn-primary" style="width: auto; padding: 14px 30px;" onclick="openCodeEntryDrawer()">
-                <i class="fas fa-plus"></i> Start New Chat
+    <!-- Auth / Initial Screen -->
+    <div id="auth-screen" class="dashboard">
+        <div class="hero-card">
+            <i class="fas fa-shield-cat" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px;">Instant Emergency Chat</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 1.05rem;">Connect instantly with anyone via a temporary 8-digit friend code. No passwords, no phone numbers required.</p>
+            <button class="btn btn-primary" style="max-width: 280px; font-size: 1.1rem; padding: 15px;" onclick="handleAnonymousSignIn()">
+                <i class="fas fa-bolt"></i> Sign In Anonymously
             </button>
         </div>
     </div>
 
-    <!-- UNSKIPPABLE: Duplicate Code Modal -->
-    <div id="duplicate-modal" class="drawer-overlay hidden">
-        <div class="drawer-card">
-            <i class="fas fa-triangle-exclamation" style="font-size: 3rem; color: var(--warning); text-align: center;"></i>
-            <h2 style="text-align: center; margin-top: 15px;">Friend Code Conflict</h2>
-            <div class="drawer-content" style="text-align: center;">
-                <p>Your randomly assigned 8-digit friend code matches another active anonymous account in our database.</p>
-                <p style="margin-top: 10px; color: var(--text-muted);">Click continue to receive a new guaranteed unique code.</p>
-            </div>
-            <button class="btn btn-primary" onclick="resolveDuplicateCode()">Continue</button>
-        </div>
-    </div>
-
-    <!-- UNSKIPPABLE: Privacy Drawer -->
-    <div id="privacy-modal" class="drawer-overlay hidden">
-        <div class="drawer-card">
-            <h2 style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-shield-halved" style="color: var(--primary);"></i> Privacy & Data Usage</h2>
-            <div class="drawer-content" style="font-size: 0.9rem; color: var(--text-main);">
-                <p><strong>Purpose of the App:</strong> Quickk! is designed specifically for <em>instant emergency messaging</em> requiring immediate, anonymous communication.</p>
-                <br>
-                <p><strong>Data Collected:</strong></p>
-                <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Random 8-digit friend code assigned to your session.</li>
-                    <li>Display Name set by you.</li>
-                    <li>Real-time online status, last seen timestamp, and typing indicators.</li>
-                    <li>Messages, images (&lt;3MB), and voice notes sent during active conversations.</li>
+    <!-- Unskippable Privacy Drawer Modal -->
+    <div id="privacy-modal" class="modal-overlay hidden">
+        <div class="drawer-box">
+            <h2 style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-user-lock" style="color: var(--primary);"></i> Privacy & Data Notice</h2>
+            <div class="drawer-body" style="font-size: 0.9rem; color: var(--text-main);">
+                <p style="margin-bottom: 12px;"><strong>Quickk!</strong> is built strictly for instant, emergency messaging with zero persistent digital footprint.</p>
+                <p style="margin-bottom: 12px;"><strong>Data We Process:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 12px;">
+                    <li>A temporary randomly generated 8-digit Friend Code.</li>
+                    <li>An anonymous display name of your choice.</li>
+                    <li>Encrypted audio notes, image attachments, and text messages sent during sessions.</li>
+                    <li>Real-time online status and last seen timestamp.</li>
                 </ul>
-                <br>
-                <p><strong>Account Deletion Notice:</strong> Your anonymous account and associated profile data will be <strong>permanently deleted automatically</strong> whenever you log out of the platform.</p>
+                <p style="margin-bottom: 12px; background: #fff7ed; border: 1px solid #ffedd5; padding: 10px; border-radius: 8px; color: #9a3412; font-size: 0.85rem;">
+                    <strong>Automatic Deletion Policy:</strong> Anonymous accounts and all related database records are automatically deleted from our servers permanently upon logging out.
+                </p>
             </div>
-            <div style="margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px;">
-                <input type="checkbox" id="privacy-check" style="margin-top: 4px; width: 18px; height: 18px;" onchange="togglePrivacyButton()">
-                <label for="privacy-check" style="font-size: 0.85rem; cursor: pointer; color: var(--text-muted);">
+            <div style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px; text-align: left;">
+                <input type="checkbox" id="privacy-check" style="margin-top: 4px;" onchange="togglePrivacyButton()">
+                <label for="privacy-check" style="font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
                     I agree to the privacy policy, I understand and have read everything stated.
                 </label>
             </div>
-            <button id="privacy-continue-btn" class="btn btn-primary" disabled onclick="completePrivacyStep()">Continue</button>
+            <button id="privacy-continue-btn" class="btn btn-primary" disabled onclick="completePrivacyStep()">
+                Continue
+            </button>
         </div>
     </div>
 
-    <!-- MANDATORY: Profile Completion Drawer -->
-    <div id="profile-modal" class="drawer-overlay hidden">
-        <div class="drawer-card">
-            <h2><i class="fas fa-user-edit" style="color: var(--primary);"></i> Complete Profile</h2>
-            <div class="drawer-content">
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Set a display name for your anonymous account. Others will see this when you chat.</p>
-                <div style="margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">Display Name</label>
-                    <input type="text" id="profile-name-input" placeholder="e.g. ShadowRider" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; outline: none;">
+    <!-- Profile Setup Drawer Modal -->
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="drawer-box">
+            <h2>Complete Profile</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; margin-bottom: 20px;">Choose a display name for your anonymous emergency session.</p>
+            <div class="input-group">
+                <label>Display Name</label>
+                <input type="text" id="profile-name-input" placeholder="e.g. Responder_Alpha" maxlength="20">
+            </div>
+            <button class="btn btn-primary" onclick="saveProfileDetails()">Save Details & Continue</button>
+        </div>
+    </div>
+
+    <!-- Mandatory Code Collision Duplicate Popup -->
+    <div id="code-collision-modal" class="modal-overlay hidden" style="z-index: 3000;">
+        <div class="drawer-box" style="text-align: center;">
+            <i class="fas fa-triangle-exclamation" style="font-size: 3rem; color: var(--warning); margin-bottom: 15px;"></i>
+            <h2>Friend Code Update Required</h2>
+            <p style="color: var(--text-muted); margin: 15px 0;">A duplicate 8-digit friend code was detected in the database. To ensure route security, you must accept a newly reassigned unique code.</p>
+            <button class="btn btn-primary" onclick="resolveCodeCollision()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Enter Code Modal -->
+    <div id="enter-code-modal" class="modal-overlay hidden">
+        <div class="drawer-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Start New Chat</h3>
+                <i class="fas fa-xmark" style="cursor: pointer; color: var(--text-muted);" onclick="closeEnterCodeDrawer()"></i>
+            </div>
+            <div class="input-group">
+                <label>Enter Recipient's 8-Digit Code</label>
+                <input type="text" id="target-code-input" placeholder="e.g. 84920192" maxlength="8">
+            </div>
+            <button class="btn btn-primary" onclick="initiateChatFromCode()">Chat</button>
+        </div>
+    </div>
+
+    <!-- Active Main Dashboard -->
+    <div id="main-dashboard" class="dashboard hidden">
+        <div class="hero-card">
+            <i class="fas fa-comments" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+            <h1 style="font-size: 1.8rem; margin-bottom: 10px;">Start Chatting Instantly</h1>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Open the sidebar menu to enter an 8-digit friend code or manage your active emergency conversations.</p>
+            <button class="btn btn-primary" style="max-width: 250px;" onclick="openSidebarAndCode()">
+                <i class="fas fa-user-plus"></i> Connect With Code
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Chat Drawer / Modal -->
+    <div id="chat-modal" class="modal-overlay hidden">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-user-details">
+                    <button class="btn btn-secondary" style="padding: 8px 12px;" onclick="closeChatDrawer()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="chat-header-name" style="font-weight: 700; font-size: 1rem;">Target User</span>
+                            <span id="chat-header-status-dot" class="status-dot offline"></span>
+                        </div>
+                        <div id="chat-header-subtext" style="font-size: 0.75rem; color: var(--text-muted);">Offline</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button id="block-btn" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem;" onclick="toggleBlockTarget()">
+                        <i class="fas fa-ban"></i> Block
+                    </button>
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="saveProfileDetails()">Save Details</button>
-        </div>
-    </div>
 
-    <!-- Drawer: Enter 8 Digit Code -->
-    <div id="code-entry-modal" class="drawer-overlay hidden">
-        <div class="drawer-card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>Enter Friend Code</h3>
-                <button class="menu-btn" onclick="closeCodeEntryDrawer()"><i class="fas fa-xmark"></i></button>
-            </div>
-            <div class="drawer-content">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Type the 8-digit code of the user you wish to message.</p>
-                <input type="text" id="target-code-input" maxlength="8" placeholder="e.g. 84920194" style="width: 100%; padding: 14px; font-size: 1.2rem; letter-spacing: 2px; text-align: center; border: 1px solid #cbd5e1; border-radius: 10px; outline: none;">
-            </div>
-            <button class="btn btn-primary" onclick="startChatByCode()">Chat</button>
-        </div>
-    </div>
+            <div class="chat-messages" id="chat-messages-container"></div>
 
-    <!-- Full Screen Chat Drawer -->
-    <div id="chat-modal" class="chat-overlay hidden">
-        <div class="chat-header">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <button class="menu-btn" onclick="closeChat()"><i class="fas fa-arrow-left"></i></button>
-                <div>
-                    <h4 id="chat-peer-name" style="line-height: 1.2;">Peer Name</h4>
-                    <span id="chat-peer-status" style="font-size: 0.75rem; color: var(--text-muted);"><span class="indicator offline"></span> Offline</span>
-                </div>
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="menu-btn" id="fav-btn" onclick="toggleFavorite()"><i class="far fa-star"></i></button>
-                <button class="menu-btn" id="block-btn" onclick="toggleBlock()"><i class="fas fa-ban"></i></button>
-                <button class="menu-btn" onclick="promptDeleteConvo()"><i class="fas fa-trash" style="color: var(--error);"></i></button>
-            </div>
-        </div>
-
-        <div class="chat-body" id="chat-messages-container">
-            <!-- Messages load dynamically -->
-        </div>
-
-        <div id="typing-indicator" class="hidden" style="padding: 5px 20px; font-size: 0.8rem; color: var(--text-muted); font-style: italic; background: #f8fafc;">
-            Peer is typing...
-        </div>
-
-        <div class="chat-footer">
-            <div id="blocked-notice" class="hidden" style="text-align: center; color: var(--error); font-size: 0.85rem; font-weight: 600;">
-                You cannot send messages to this blocked conversation.
-            </div>
-
-            <div id="chat-input-controls" style="display: flex; align-items: center; gap: 8px;">
-                <label for="image-upload-input" class="menu-btn" style="cursor: pointer;"><i class="fas fa-image" style="color: var(--primary);"></i></label>
-                <input type="file" id="image-upload-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-
-                <button class="menu-btn" id="voice-record-btn" onclick="toggleVoiceRecord()"><i class="fas fa-microphone" style="color: var(--primary);"></i></button>
-
-                <input type="text" id="chat-input-text" placeholder="Type an emergency message..." style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none;" oninput="handleTypingEvent()">
-
-                <button class="btn btn-primary" style="width: auto; padding: 12px 18px;" onclick="sendTextMessage()"><i class="fas fa-paper-plane"></i></button>
+            <div class="chat-input-bar">
+                <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="handleImageSelected(event)">
+                <button class="mic-btn" onclick="triggerImageUpload()" title="Attach Image (< 3MB)">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <button id="mic-btn" class="mic-btn" onclick="toggleVoiceRecording()" title="Voice Note">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" id="chat-text-input" class="chat-input" placeholder="Type a message..." oninput="handleTypingNotification()" onkeydown="if(event.key==='Enter') sendTextMessage()">
+                <button class="btn btn-primary" style="width: auto; padding: 12px 18px; border-radius: 25px;" onclick="sendTextMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase 10 SDK Script Injection -->
+    <!-- Firebase Application Core Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, push, onValue, update, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, child, update, push, onValue, remove, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -323,157 +327,131 @@
             appId: "1:759718304711:web:2b020dea4be55eb87ed7e2"
         };
 
-        // Cloudinary Settings
-        const CLOUDINARY_CLOUD_NAME = "xsm4rlt6";
-        const CLOUDINARY_PRESET = "ml_default";
-
-        // App State
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // Cloudinary Credentials
+        const CLOUDINARY_CLOUD_NAME = "xsm4rlt6";
+        const CLOUDINARY_PRESET = "ml_default";
+
+        // Global State
         let currentUser = null;
         let userData = null;
-        let activeChatPeerUid = null;
-        let activeChatPeerCode = null;
+        let activeChatUid = null;
+        let activeChatTargetData = null;
         let activeChatId = null;
-        let activeChatUnsubscribes = [];
+        let typingTimeout = null;
         let mediaRecorder = null;
         let audioChunks = [];
         let isRecording = false;
-        let typingTimeout = null;
 
-        // UI Toast Utility
+        // Toast Helper
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
             toast.innerHTML = `<i class="fas ${icon}" style="color: var(--${type})"></i> <span>${msg}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         };
 
-        // Sidebar restriction: Can only open if user is signed up & completed profile
-        window.toggleSidebar = () => {
-            if (!currentUser || !userData || !userData.displayName) {
-                showToast("Please sign up and complete your profile first!", "error");
-                return;
-            }
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('sidebar-overlay').classList.toggle('active');
-        };
+        // Code Generation
+        function generate8DigitCode() {
+            return Math.floor(10000000 + Math.random() * 90000000).toString();
+        }
 
-        // Copy Code Helper
-        window.copyMyCode = () => {
-            if (userData && userData.code) {
-                navigator.clipboard.writeText(userData.code);
-                showToast("Code copied to clipboard!");
-            }
-        };
-
-        // Maintenance Check (Monitors /maintenance node)
+        // Maintenance Check
         onValue(ref(db, 'maintenance'), (snapshot) => {
             const isMaintenance = snapshot.val() === true;
             document.getElementById('maintenance-screen').classList.toggle('hidden', !isMaintenance);
         });
 
-        // Generate 8 Digit Random Code
-        function generate8DigitCode() {
-            return Math.floor(10000000 + Math.random() * 90000000).toString();
-        }
-
-        // Persistent Auth Listener
-        setPersistence(auth, browserLocalPersistence).then(() => {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
-                    const userRef = ref(db, `users/${user.uid}`);
-                    const snap = await get(userRef);
-
-                    if (!snap.exists()) {
-                        // First time setup for this anonymous user
-                        const newCode = generate8DigitCode();
-                        const initialData = {
-                            uid: user.uid,
-                            code: newCode,
-                            displayName: '',
-                            acceptedPrivacy: false,
-                            online: true,
-                            lastSeen: Date.now()
-                        };
-                        await set(userRef, initialData);
-                        await set(ref(db, `codes/${newCode}`), user.uid);
-                        userData = initialData;
-                    } else {
-                        userData = snap.val();
-                    }
-
-                    // Presence setup
-                    setupPresence(user.uid);
-
-                    // Verify Code Uniqueness across database
-                    checkCodeUniqueness();
-                } else {
-                    currentUser = null;
-                    userData = null;
-                    showLanding();
-                }
-            });
+        // Auth State Observer
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                setupOnlinePresence(user.uid);
+                await initializeUserData(user.uid);
+            } else {
+                currentUser = null;
+                userData = null;
+                showScreen('auth-screen');
+                document.getElementById('hamburger-btn').classList.add('hidden');
+                document.getElementById('user-badge').classList.add('hidden');
+            }
         });
 
-        function setupPresence(uid) {
-            const userStatusRef = ref(db, `users/${uid}/online`);
-            const lastSeenRef = ref(db, `users/${uid}/lastSeen`);
+        // Online Presence System
+        function setupOnlinePresence(uid) {
+            const statusRef = ref(db, `users/${uid}/status`);
+            const onlineData = { online: true, lastSeen: serverTimestamp() };
+            const offlineData = { online: false, lastSeen: serverTimestamp() };
 
-            set(userStatusRef, true);
-            set(lastSeenRef, Date.now());
-
-            onDisconnect(userStatusRef).set(false);
-            onDisconnect(lastSeenRef).set(Date.now());
+            set(statusRef, onlineData);
+            onDisconnect(statusRef).set(offlineData);
         }
 
-        async function checkCodeUniqueness() {
-            const codeRef = ref(db, `codes/${userData.code}`);
-            const snap = await get(codeRef);
+        // User Data Initialization
+        async function initializeUserData(uid) {
+            const userRef = ref(db, `users/${uid}`);
+            const snapshot = await get(userRef);
 
-            if (snap.exists() && snap.val() !== currentUser.uid) {
-                document.getElementById('duplicate-modal').classList.remove('hidden');
+            if (!snapshot.exists()) {
+                const assignedCode = generate8DigitCode();
+                const newUser = {
+                    uid: uid,
+                    code: assignedCode,
+                    displayName: '',
+                    privacyAccepted: false,
+                    profileCompleted: false,
+                    createdAt: Date.now()
+                };
+                await set(userRef, newUser);
+                userData = newUser;
             } else {
-                continueOnboardingSequence();
+                userData = snapshot.val();
             }
-        }
 
-        window.resolveDuplicateCode = async () => {
-            let uniqueFound = false;
-            let candidateCode = '';
+            // Realtime Duplicate Code Monitoring
+            onValue(ref(db, 'users'), (allUsersSnap) => {
+                if (!allUsersSnap.exists() || !userData) return;
+                const usersMap = allUsersSnap.val();
+                let duplicateFound = false;
 
-            while (!uniqueFound) {
-                candidateCode = generate8DigitCode();
-                const codeSnap = await get(ref(db, `codes/${candidateCode}`));
-                if (!codeSnap.exists()) {
-                    uniqueFound = true;
+                for (let otherUid in usersMap) {
+                    if (otherUid !== uid && usersMap[otherUid].code === userData.code) {
+                        duplicateFound = true;
+                        break;
+                    }
                 }
-            }
 
-            userData.code = candidateCode;
-            await update(ref(db, `users/${currentUser.uid}`), { code: candidateCode });
-            await set(ref(db, `codes/${candidateCode}`), currentUser.uid);
+                if (duplicateFound) {
+                    document.getElementById('code-collision-modal').classList.remove('hidden');
+                }
+            });
 
-            document.getElementById('duplicate-modal').classList.add('hidden');
-            showToast("Assigned a guaranteed unique code!");
-            continueOnboardingSequence();
-        };
-
-        function continueOnboardingSequence() {
-            if (!userData.acceptedPrivacy) {
-                document.getElementById('privacy-modal').classList.remove('hidden');
-            } else if (!userData.displayName || userData.displayName.trim() === '') {
-                document.getElementById('profile-modal').classList.remove('hidden');
+            // Flow Enforcement
+            if (!userData.privacyAccepted) {
+                showModal('privacy-modal');
+            } else if (!userData.profileCompleted) {
+                showModal('profile-modal');
             } else {
-                showDashboard();
+                renderDashboard();
             }
+
+            loadConversationsList();
         }
+
+        window.handleAnonymousSignIn = async () => {
+            try {
+                await signInAnonymously(auth);
+                showToast("Signed in anonymously");
+            } catch (err) {
+                showToast(err.message, "error");
+            }
+        };
 
         window.togglePrivacyButton = () => {
             const checked = document.getElementById('privacy-check').checked;
@@ -481,222 +459,261 @@
         };
 
         window.completePrivacyStep = async () => {
-            userData.acceptedPrivacy = true;
-            await update(ref(db, `users/${currentUser.uid}`), { acceptedPrivacy: true });
-            document.getElementById('privacy-modal').classList.add('hidden');
-            continueOnboardingSequence();
+            if (!currentUser) return;
+            await update(ref(db, `users/${currentUser.uid}`), { privacyAccepted: true });
+            userData.privacyAccepted = true;
+            hideModal('privacy-modal');
+            showModal('profile-modal');
         };
 
         window.saveProfileDetails = async () => {
             const name = document.getElementById('profile-name-input').value.trim();
-            if (!name) return showToast("Please enter a valid display name", "error");
+            if (!name) return showToast("Please enter a display name", "error");
 
+            await update(ref(db, `users/${currentUser.uid}`), {
+                displayName: name,
+                profileCompleted: true
+            });
             userData.displayName = name;
-            await update(ref(db, `users/${currentUser.uid}`), { displayName: name });
-            document.getElementById('profile-modal').classList.add('hidden');
-            showDashboard();
+            userData.profileCompleted = true;
+
+            hideModal('profile-modal');
+            renderDashboard();
+            showToast("Profile configured!");
         };
 
-        function showLanding() {
-            document.getElementById('landing-view').classList.remove('hidden');
-            document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('nav-profile-info').classList.add('hidden');
-            document.getElementById('nav-menu-btn').classList.add('hidden');
-        }
+        window.resolveCodeCollision = async () => {
+            if (!currentUser) return;
+            const usersSnap = await get(ref(db, 'users'));
+            const users = usersSnap.val() || {};
+            let newCode = generate8DigitCode();
 
-        function showDashboard() {
-            document.getElementById('landing-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.remove('hidden');
-            document.getElementById('nav-menu-btn').classList.remove('hidden');
-            
-            // Update Header profile info & Dashboard Code Card
-            const navInfo = document.getElementById('nav-profile-info');
-            navInfo.classList.remove('hidden');
-            document.getElementById('my-display-name').innerText = userData.displayName;
-            document.getElementById('my-code-badge').innerText = userData.code;
-            document.getElementById('dash-my-code').innerText = userData.code;
-
-            // Load active conversations
-            loadConversations();
-        }
-
-        window.handleSignUp = async () => {
-            const btn = document.getElementById('signup-btn');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing up...`;
-            try {
-                await signInAnonymously(auth);
-            } catch (e) {
-                showToast(e.message, 'error');
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fas fa-user-plus"></i> Sign Up Anonymously`;
-            }
-        };
-
-        window.handleLogout = async () => {
-            if (!confirm("Are you sure? Your anonymous account will be permanently deleted!")) return;
-
-            if (currentUser && userData) {
-                await remove(ref(db, `codes/${userData.code}`));
-                await remove(ref(db, `users/${currentUser.uid}`));
+            while (Object.values(users).some(u => u.code === newCode)) {
+                newCode = generate8DigitCode();
             }
 
-            await signOut(auth);
-            window.location.reload();
+            await update(ref(db, `users/${currentUser.uid}`), { code: newCode });
+            userData.code = newCode;
+            document.getElementById('my-code-display').innerText = newCode;
+            hideModal('code-collision-modal');
+            showToast("Assigned new unique friend code!");
         };
 
-        // Code Entry & Chat Lookup
-        window.openCodeEntryDrawer = () => {
-            if (document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
-            document.getElementById('code-entry-modal').classList.remove('hidden');
+        function renderDashboard() {
+            showScreen('main-dashboard');
+            document.getElementById('hamburger-btn').classList.remove('hidden');
+            document.getElementById('user-badge').classList.remove('hidden');
+            document.getElementById('nav-display-name').innerText = userData.displayName || "Anonymous";
+            document.getElementById('my-code-display').innerText = userData.code;
+        }
+
+        // Sidebar Navigation
+        window.toggleSidebar = () => {
+            if (!userData || !userData.profileCompleted) return; // Prevent sidebar during signup
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebar-overlay').classList.toggle('active');
         };
 
-        window.closeCodeEntryDrawer = () => {
-            document.getElementById('code-entry-modal').classList.add('hidden');
+        window.openSidebarAndCode = () => {
+            toggleSidebar();
+            openEnterCodeDrawer();
         };
 
-        window.startChatByCode = async () => {
-            const targetCode = document.getElementById('target-code-input').value.trim();
-            if (!targetCode || targetCode.length !== 8) return showToast("Enter a valid 8-digit code", "error");
-            if (targetCode === userData.code) return showToast("You cannot enter your own code!", "error");
-
-            const codeSnap = await get(ref(db, `codes/${targetCode}`));
-            if (!codeSnap.exists()) return showToast("No user found with this friend code!", "error");
-
-            const peerUid = codeSnap.val();
-            closeCodeEntryDrawer();
-            openChatWith(peerUid, targetCode);
+        window.openEnterCodeDrawer = () => {
+            showModal('enter-code-modal');
         };
 
-        async function openChatWith(peerUid, peerCode) {
-            activeChatPeerUid = peerUid;
-            activeChatPeerCode = peerCode;
+        window.closeEnterCodeDrawer = () => {
+            hideModal('enter-code-modal');
+        };
 
-            // Generate deterministic Chat ID
-            activeChatId = currentUser.uid < peerUid ? `${currentUser.uid}_${peerUid}` : `${peerUid}_${currentUser.uid}`;
+        window.copyCode = () => {
+            navigator.clipboard.writeText(userData.code);
+            showToast("Code copied to clipboard!");
+        };
 
-            const userChatRef = ref(db, `userChats/${currentUser.uid}/${activeChatId}`);
-            await update(userChatRef, {
-                peerUid: peerUid,
-                peerCode: peerCode,
-                lastUpdated: Date.now()
+        // Chat Initiation
+        window.initiateChatFromCode = async () => {
+            const codeInput = document.getElementById('target-code-input').value.trim();
+            if (!codeInput || codeInput.length !== 8) return showToast("Enter a valid 8-digit code", "error");
+            if (codeInput === userData.code) return showToast("You cannot enter your own code", "error");
+
+            const usersSnap = await get(ref(db, 'users'));
+            if (!usersSnap.exists()) return showToast("User not found", "error");
+
+            let foundTarget = null;
+            usersSnap.forEach((child) => {
+                const u = child.val();
+                if (u.code === codeInput) foundTarget = u;
             });
 
-            document.getElementById('chat-modal').classList.remove('hidden');
+            if (!foundTarget) {
+                return showToast("No user found with this 8-digit code", "error");
+            }
 
-            activeChatUnsubscribes.forEach(unsub => unsub());
-            activeChatUnsubscribes = [];
+            hideModal('enter-code-modal');
+            document.getElementById('target-code-input').value = '';
+            
+            // Save into My Conversations
+            await update(ref(db, `conversations/${currentUser.uid}/${foundTarget.uid}`), {
+                targetUid: foundTarget.uid,
+                code: foundTarget.code,
+                displayName: foundTarget.displayName,
+                timestamp: Date.now()
+            });
 
-            // Peer listener
-            const peerRef = ref(db, `users/${peerUid}`);
-            const unsubPeer = onValue(peerRef, (snap) => {
-                if (snap.exists()) {
-                    const data = snap.val();
-                    document.getElementById('chat-peer-name').innerText = data.displayName || 'Anonymous';
-                    
-                    const statusEl = document.getElementById('chat-peer-status');
-                    if (data.online) {
-                        statusEl.innerHTML = `<span class="indicator online"></span> Online`;
-                    } else {
-                        const lastSeenTime = data.lastSeen ? new Date(data.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'recently';
-                        statusEl.innerHTML = `<span class="indicator offline"></span> Last seen ${lastSeenTime}`;
-                    }
+            openChatWithUser(foundTarget.uid);
+        };
+
+        // Conversations Loader
+        function loadConversationsList() {
+            if (!currentUser) return;
+            onValue(ref(db, `conversations/${currentUser.uid}`), (snapshot) => {
+                const favList = document.getElementById('favorite-convos-list');
+                const myContList = document.getElementById('my-convos-list');
+                favList.innerHTML = '';
+                myContList.innerHTML = '';
+
+                if (!snapshot.exists()) return;
+
+                snapshot.forEach((child) => {
+                    const convo = child.val();
+                    const targetUid = child.key;
+
+                    // Fetch live status & display name of target
+                    onValue(ref(db, `users/${targetUid}`), (uSnap) => {
+                        if (!uSnap.exists()) return;
+                        const targetUser = uSnap.val();
+                        const isOnline = targetUser.status && targetUser.status.online;
+
+                        const li = document.createElement('li');
+                        li.className = 'convo-item';
+                        li.onclick = () => openChatWithUser(targetUid);
+                        li.innerHTML = `
+                            <div class="convo-info">
+                                <span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>
+                                <div>
+                                    <div class="convo-name">${targetUser.displayName}</div>
+                                    <div class="convo-code">Code: ${targetUser.code}</div>
+                                </div>
+                            </div>
+                            <div class="convo-actions">
+                                <i class="fas fa-star action-icon ${convo.favorite ? 'active-fav' : ''}" title="Favorite" onclick="event.stopPropagation(); toggleFavoriteConvo('${targetUid}', ${!convo.favorite})"></i>
+                                <i class="fas fa-trash action-icon" title="Delete" onclick="event.stopPropagation(); deleteConvo('${targetUid}')"></i>
+                            </div>
+                        `;
+
+                        if (convo.favorite) {
+                            favList.appendChild(li);
+                        } else {
+                            myContList.appendChild(li);
+                        }
+                    });
+                });
+            });
+        }
+
+        window.toggleFavoriteConvo = async (targetUid, favState) => {
+            await update(ref(db, `conversations/${currentUser.uid}/${targetUid}`), { favorite: favState });
+        };
+
+        window.deleteConvo = async (targetUid) => {
+            if (confirm("Deleting this conversation removes it from your sidebar. Re-entering their 8-digit code will bring it back. Proceed?")) {
+                await remove(ref(db, `conversations/${currentUser.uid}/${targetUid}`));
+                if (activeChatUid === targetUid) closeChatDrawer();
+                showToast("Conversation removed");
+            }
+        };
+
+        // Realtime Chat Drawer
+        async function openChatWithUser(targetUid) {
+            activeChatUid = targetUid;
+            activeChatId = [currentUser.uid, targetUid].sort().join('_');
+
+            // Fetch Target User
+            const targetSnap = await get(ref(db, `users/${targetUid}`));
+            if (!targetSnap.exists()) return showToast("User no longer exists", "error");
+            activeChatTargetData = targetSnap.val();
+
+            document.getElementById('chat-header-name').innerText = activeChatTargetData.displayName;
+            showModal('chat-modal');
+
+            // Listen to Target Online/Offline/Last Seen & Block Status
+            onValue(ref(db, `users/${targetUid}/status`), async (statusSnap) => {
+                const status = statusSnap.val() || { online: false, lastSeen: 0 };
+                
+                // Check if blocked by target
+                const blockedByTargetSnap = await get(ref(db, `blocks/${targetUid}/${currentUser.uid}`));
+                const isBlockedByTarget = blockedByTargetSnap.val() === true;
+
+                const dot = document.getElementById('chat-header-status-dot');
+                const subtext = document.getElementById('chat-header-subtext');
+
+                if (isBlockedByTarget || !status.online) {
+                    dot.className = 'status-dot offline';
+                    const lastSeenStr = status.lastSeen ? new Date(status.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown';
+                    subtext.innerText = `Offline | Last seen ${lastSeenStr}`;
+                } else {
+                    dot.className = 'status-dot online';
+                    subtext.innerText = 'Online';
                 }
             });
-            activeChatUnsubscribes.push(unsubPeer);
 
-            // Messages listener
-            const messagesRef = ref(db, `chats/${activeChatId}/messages`);
-            const unsubMsgs = onValue(messagesRef, (snap) => {
+            // Listen to Typing Indicator
+            onValue(ref(db, `chats/${activeChatId}/typing/${targetUid}`), (typingSnap) => {
+                const isTyping = typingSnap.val() === true;
+                if (isTyping) {
+                    document.getElementById('chat-header-subtext').innerText = 'typing...';
+                }
+            });
+
+            // Listen to Block state set by me
+            onValue(ref(db, `blocks/${currentUser.uid}/${targetUid}`), (blockSnap) => {
+                const isBlocked = blockSnap.val() === true;
+                const blockBtn = document.getElementById('block-btn');
+                blockBtn.innerHTML = isBlocked ? '<i class="fas fa-unlock"></i> Unblock' : '<i class="fas fa-ban"></i> Block';
+            });
+
+            // Listen to Chat Messages
+            onValue(ref(db, `chats/${activeChatId}/messages`), (msgsSnap) => {
                 const container = document.getElementById('chat-messages-container');
                 container.innerHTML = '';
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        const msg = child.val();
-                        renderMessageBubble(msg);
-                    });
-                    container.scrollTop = container.scrollHeight;
-                }
-            });
-            activeChatUnsubscribes.push(unsubMsgs);
+                if (!msgsSnap.exists()) return;
 
-            // Typing listener
-            const typingRef = ref(db, `chats/${activeChatId}/typing/${peerUid}`);
-            const unsubTyping = onValue(typingRef, (snap) => {
-                const isTyping = snap.val() === true;
-                document.getElementById('typing-indicator').classList.toggle('hidden', !isTyping);
-            });
-            activeChatUnsubscribes.push(unsubTyping);
+                msgsSnap.forEach((child) => {
+                    const msg = child.val();
+                    const isMe = msg.senderUid === currentUser.uid;
 
-            // Favorite & Block listeners
-            const favRef = ref(db, `userChats/${currentUser.uid}/${activeChatId}/favorite`);
-            const unsubFav = onValue(favRef, (snap) => {
-                const isFav = snap.val() === true;
-                document.getElementById('fav-btn').innerHTML = isFav ? `<i class="fas fa-star" style="color: var(--warning);"></i>` : `<i class="far fa-star"></i>`;
-            });
-            activeChatUnsubscribes.push(unsubFav);
+                    const bubble = document.createElement('div');
+                    bubble.className = `msg-bubble ${isMe ? 'msg-sent' : 'msg-received'}`;
 
-            const blockRef = ref(db, `blocks/${currentUser.uid}/${peerUid}`);
-            const unsubBlock = onValue(blockRef, (snap) => {
-                const isBlocked = snap.val() === true;
-                document.getElementById('block-btn').innerHTML = isBlocked ? `<i class="fas fa-ban" style="color: var(--error);"></i>` : `<i class="fas fa-ban"></i>`;
-                document.getElementById('chat-input-controls').classList.toggle('hidden', isBlocked);
-                document.getElementById('blocked-notice').classList.toggle('hidden', !isBlocked);
+                    let contentHtml = '';
+                    if (msg.type === 'text') {
+                        contentHtml = `<div>${escapeHtml(msg.text)}</div>`;
+                    } else if (msg.type === 'image') {
+                        contentHtml = `<img src="${msg.mediaUrl}" class="msg-img" onclick="window.open('${msg.mediaUrl}')" />`;
+                    } else if (msg.type === 'audio') {
+                        contentHtml = `<audio controls src="${msg.mediaUrl}" class="msg-audio"></audio>`;
+                    }
+
+                    const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    bubble.innerHTML = `${contentHtml}<div class="msg-time">${timeStr}</div>`;
+                    container.appendChild(bubble);
+                });
+
+                container.scrollTop = container.scrollHeight;
             });
-            activeChatUnsubscribes.push(unsubBlock);
         }
 
-        function renderMessageBubble(msg) {
-            const container = document.getElementById('chat-messages-container');
-            const isMe = msg.senderId === currentUser.uid;
-            
-            const div = document.createElement('div');
-            div.className = `message-bubble ${isMe ? 'me' : 'peer'}`;
-
-            let contentHTML = '';
-            if (msg.text) contentHTML += `<div>${msg.text}</div>`;
-            if (msg.image) contentHTML += `<img src="${msg.image}" style="max-width: 100%; border-radius: 8px; margin-top: 5px;">`;
-            if (msg.audio) contentHTML += `<audio controls src="${msg.audio}" style="margin-top: 5px; max-width: 100%;"></audio>`;
-
-            const formattedTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            contentHTML += `<div class="msg-time">${formattedTime}</div>`;
-
-            div.innerHTML = contentHTML;
-            container.appendChild(div);
-        }
-
-        window.closeChat = () => {
-            document.getElementById('chat-modal').classList.add('hidden');
-            activeChatUnsubscribes.forEach(unsub => unsub());
-            activeChatUnsubscribes = [];
+        window.closeChatDrawer = () => {
+            hideModal('chat-modal');
+            activeChatUid = null;
+            activeChatId = null;
         };
 
-        window.sendTextMessage = async () => {
-            const input = document.getElementById('chat-input-text');
-            const text = input.value.trim();
-            if (!text) return;
-
-            input.value = '';
-            await sendMessage({ text: text });
-        };
-
-        async function sendMessage(payload) {
-            const peerBlockSnap = await get(ref(db, `blocks/${activeChatPeerUid}/${currentUser.uid}`));
-            if (peerBlockSnap.exists() && peerBlockSnap.val() === true) {
-                return showToast("Message could not be delivered.", "error");
-            }
-
-            const msgData = {
-                senderId: currentUser.uid,
-                timestamp: Date.now(),
-                ...payload
-            };
-
-            await push(ref(db, `chats/${activeChatId}/messages`), msgData);
-            set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), false);
-        }
-
-        window.handleTypingEvent = () => {
+        // Typing Indicator Trigger
+        window.handleTypingNotification = () => {
+            if (!activeChatId) return;
             set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), true);
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
@@ -704,27 +721,87 @@
             }, 2000);
         };
 
-        window.handleImageUpload = async (event) => {
+        // Send Text Message
+        window.sendTextMessage = async () => {
+            const input = document.getElementById('chat-text-input');
+            const text = input.value.trim();
+            if (!text || !activeChatId) return;
+
+            // Check if blocked
+            const isBlockedByMe = (await get(ref(db, `blocks/${currentUser.uid}/${activeChatUid}`))).val() === true;
+            const isBlockedByTarget = (await get(ref(db, `blocks/${activeChatUid}/${currentUser.uid}`))).val() === true;
+
+            if (isBlockedByMe || isBlockedByTarget) {
+                return showToast("Cannot send message in a blocked conversation", "error");
+            }
+
+            const msgRef = push(ref(db, `chats/${activeChatId}/messages`));
+            await set(msgRef, {
+                senderUid: currentUser.uid,
+                text: text,
+                type: 'text',
+                timestamp: Date.now()
+            });
+
+            input.value = '';
+            set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), false);
+        };
+
+        // Toggle Block User
+        window.toggleBlockTarget = async () => {
+            const blockRef = ref(db, `blocks/${currentUser.uid}/${activeChatUid}`);
+            const snapshot = await get(blockRef);
+            if (snapshot.val() === true) {
+                await set(blockRef, false);
+                showToast("User unblocked");
+            } else {
+                await set(blockRef, true);
+                showToast("User blocked");
+            }
+        };
+
+        // Cloudinary Image Upload
+        window.triggerImageUpload = () => {
+            document.getElementById('image-file-input').click();
+        };
+
+        window.handleImageSelected = async (event) => {
             const file = event.target.files[0];
             if (!file) return;
 
             if (file.size > 3 * 1024 * 1024) {
-                showToast("Image size must be under 3MB!", "error");
-                return;
+                return showToast("Image size must be under 3MB", "error");
             }
 
             showToast("Uploading image...");
-            const url = await uploadToCloudinary(file);
-            if (url) {
-                await sendMessage({ image: url });
-                showToast("Image sent successfully!");
-            } else {
-                showToast("Failed to upload image.", "error");
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_PRESET);
+
+            try {
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.secure_url) {
+                    const msgRef = push(ref(db, `chats/${activeChatId}/messages`));
+                    await set(msgRef, {
+                        senderUid: currentUser.uid,
+                        mediaUrl: data.secure_url,
+                        type: 'image',
+                        timestamp: Date.now()
+                    });
+                    showToast("Image sent!");
+                }
+            } catch (err) {
+                showToast("Image upload failed", "error");
             }
         };
 
-        window.toggleVoiceRecord = async () => {
-            const btn = document.getElementById('voice-record-btn');
+        // Voice Note Recording
+        window.toggleVoiceRecording = async () => {
+            const micBtn = document.getElementById('mic-btn');
             if (!isRecording) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -734,113 +811,83 @@
                     mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
                     mediaRecorder.onstop = async () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        showToast("Uploading voice note...");
-                        const url = await uploadToCloudinary(audioBlob);
-                        if (url) {
-                            await sendMessage({ audio: url });
-                            showToast("Voice note sent!");
-                        }
+                        uploadVoiceNote(audioBlob);
                     };
 
                     mediaRecorder.start();
                     isRecording = true;
-                    btn.classList.add('recording-pulse');
-                    showToast("Recording audio... Click mic again to stop.");
-                } catch (e) {
-                    showToast("Microphone access denied.", "error");
+                    micBtn.classList.add('recording');
+                    showToast("Recording audio...");
+                } catch (err) {
+                    showToast("Microphone access denied", "error");
                 }
             } else {
                 mediaRecorder.stop();
                 isRecording = false;
-                btn.classList.remove('recording-pulse');
+                micBtn.classList.remove('recording');
             }
         };
 
-        async function uploadToCloudinary(fileOrBlob) {
+        async function uploadVoiceNote(audioBlob) {
+            showToast("Sending voice note...");
             const formData = new FormData();
-            formData.append('file', fileOrBlob);
+            formData.append('file', audioBlob);
             formData.append('upload_preset', CLOUDINARY_PRESET);
 
             try {
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`, {
                     method: 'POST',
                     body: formData
                 });
                 const data = await res.json();
-                return data.secure_url;
-            } catch (err) {
-                console.error("Cloudinary error:", err);
-                return null;
-            }
-        }
-
-        window.toggleFavorite = async () => {
-            const favRef = ref(db, `userChats/${currentUser.uid}/${activeChatId}/favorite`);
-            const snap = await get(favRef);
-            const isFav = snap.val() === true;
-            await set(favRef, !isFav);
-            showToast(!isFav ? "Marked as Favorite" : "Removed from Favorites");
-        };
-
-        window.toggleBlock = async () => {
-            const blockRef = ref(db, `blocks/${currentUser.uid}/${activeChatPeerUid}`);
-            const snap = await get(blockRef);
-            const isBlocked = snap.val() === true;
-            await set(blockRef, !isBlocked);
-            showToast(!isBlocked ? "User Blocked" : "User Unblocked");
-        };
-
-        window.promptDeleteConvo = async () => {
-            if (confirm("Deleting this conversation removes it from your list. Re-entering their 8-digit code will bring it back.")) {
-                await remove(ref(db, `userChats/${currentUser.uid}/${activeChatId}`));
-                closeChat();
-                showToast("Conversation deleted");
-            }
-        };
-
-        function loadConversations() {
-            const userChatsRef = ref(db, `userChats/${currentUser.uid}`);
-            onValue(userChatsRef, (snap) => {
-                const myConvoEl = document.getElementById('my-conversations-list');
-                const favConvoEl = document.getElementById('fav-conversations-list');
-
-                myConvoEl.innerHTML = '';
-                favConvoEl.innerHTML = '';
-
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        const convo = child.val();
-                        fetchAndRenderSidebarItem(convo, myConvoEl, favConvoEl);
+                if (data.secure_url) {
+                    const msgRef = push(ref(db, `chats/${activeChatId}/messages`));
+                    await set(msgRef, {
+                        senderUid: currentUser.uid,
+                        mediaUrl: data.secure_url,
+                        type: 'audio',
+                        timestamp: Date.now()
                     });
-                } else {
-                    myConvoEl.innerHTML = `<p style="font-size: 0.8rem; color: var(--text-muted);">No active chats</p>`;
                 }
-            });
+            } catch (err) {
+                showToast("Voice note failed to send", "error");
+            }
         }
 
-        async function fetchAndRenderSidebarItem(convo, myEl, favEl) {
-            const peerSnap = await get(ref(db, `users/${convo.peerUid}`));
-            const peerName = peerSnap.exists() ? (peerSnap.val().displayName || 'Anonymous') : 'Anonymous';
+        // Logout & Automatic Data Deletion
+        window.handleLogout = async () => {
+            if (!currentUser) return;
+            if (confirm("Logging out will permanently delete your anonymous account and session data. Continue?")) {
+                const uid = currentUser.uid;
+                
+                // Cleanup user data from database
+                await remove(ref(db, `users/${uid}`));
+                await remove(ref(db, `conversations/${uid}`));
+                await deleteUser(currentUser);
 
-            const item = document.createElement('div');
-            item.className = 'convo-item';
-            item.innerHTML = `
-                <div>
-                    <strong style="font-size: 0.9rem;">${peerName}</strong>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">Code: ${convo.peerCode}</div>
-                </div>
-                <i class="fas fa-chevron-right" style="font-size: 0.8rem; color: var(--text-muted);"></i>
-            `;
-            item.onclick = () => {
-                toggleSidebar();
-                openChatWith(convo.peerUid, convo.peerCode);
-            };
-
-            if (convo.favorite) {
-                favEl.appendChild(item);
-            } else {
-                myEl.appendChild(item);
+                showToast("Session cleared & logged out");
+                window.location.reload();
             }
+        };
+
+        // Screen & Modal Helpers
+        function showScreen(screenId) {
+            ['auth-screen', 'main-dashboard'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
 </body>
