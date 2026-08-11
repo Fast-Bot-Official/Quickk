@@ -67,8 +67,11 @@
         .landing-container { max-width: 450px; margin: 80px auto; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
 
         /* Main Dashboard */
-        .dashboard-container { max-width: 800px; margin: 60px auto; text-align: center; padding: 0 20px; }
-        .dashboard-card { background: white; padding: 50px 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        .dashboard-container { max-width: 800px; margin: 40px auto; text-align: center; padding: 0 20px; }
+        .dashboard-card { background: white; padding: 40px 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+
+        /* Code Banner Card */
+        .code-display-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 20px; padding: 20px 25px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; text-align: left; }
 
         /* Chat Window Drawer / Modal */
         .chat-overlay { position: fixed; inset: 0; background: white; z-index: 1500; display: flex; flex-direction: column; }
@@ -145,7 +148,7 @@
     <!-- Navigation Header -->
     <nav>
         <div style="display: flex; align-items: center; gap: 15px;">
-            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <button id="nav-menu-btn" class="menu-btn hidden" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <div class="logo"><i class="fas fa-bolt"></i> Quickk!</div>
         </div>
         <div id="nav-profile-info" class="hidden" style="display: flex; align-items: center; gap: 12px;">
@@ -154,20 +157,32 @@
         </div>
     </nav>
 
-    <!-- Sign In View -->
+    <!-- Sign Up View -->
     <div id="landing-view" class="landing-container">
         <div style="width: 70px; height: 70px; background: #dbeafe; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
             <i class="fas fa-bolt" style="font-size: 2rem; color: var(--primary);"></i>
         </div>
         <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 10px;">Quickk! Messaging</h1>
         <p style="color: var(--text-muted); margin-bottom: 30px;">Instant real-time emergency messaging platform. Completely anonymous and encrypted context.</p>
-        <button id="signin-btn" class="btn btn-primary" style="padding: 16px;" onclick="handleSignIn()">
-            <i class="fas fa-user-secret"></i> Sign In Anonymously
+        <button id="signup-btn" class="btn btn-primary" style="padding: 16px;" onclick="handleSignUp()">
+            <i class="fas fa-user-plus"></i> Sign Up Anonymously
         </button>
     </div>
 
     <!-- Main Dashboard View -->
     <div id="dashboard-view" class="dashboard-container hidden">
+        
+        <!-- Code Display Section -->
+        <div class="code-display-card">
+            <div>
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">Your Unique 8-Digit Code</span>
+                <div id="dash-my-code" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: 3px; margin-top: 2px;">--------</div>
+            </div>
+            <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="copyMyCode()">
+                <i class="fas fa-copy"></i> Copy Code
+            </button>
+        </div>
+
         <div class="dashboard-card">
             <i class="fas fa-paper-plane" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
             <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 15px;">Start chatting instantly</h1>
@@ -339,12 +354,25 @@
             setTimeout(() => toast.remove(), 4000);
         };
 
+        // Sidebar restriction: Can only open if user is signed up & completed profile
         window.toggleSidebar = () => {
+            if (!currentUser || !userData || !userData.displayName) {
+                showToast("Please sign up and complete your profile first!", "error");
+                return;
+            }
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('sidebar-overlay').classList.toggle('active');
         };
 
-        // 1. Maintenance Check (Consistently monitors /maintenance node)
+        // Copy Code Helper
+        window.copyMyCode = () => {
+            if (userData && userData.code) {
+                navigator.clipboard.writeText(userData.code);
+                showToast("Code copied to clipboard!");
+            }
+        };
+
+        // Maintenance Check (Monitors /maintenance node)
         onValue(ref(db, 'maintenance'), (snapshot) => {
             const isMaintenance = snapshot.val() === true;
             document.getElementById('maintenance-screen').classList.toggle('hidden', !isMaintenance);
@@ -410,7 +438,6 @@
             const snap = await get(codeRef);
 
             if (snap.exists() && snap.val() !== currentUser.uid) {
-                // Code matches another user! Show compulsory unskippable modal
                 document.getElementById('duplicate-modal').classList.remove('hidden');
             } else {
                 continueOnboardingSequence();
@@ -429,7 +456,6 @@
                 }
             }
 
-            // Assign unique code
             userData.code = candidateCode;
             await update(ref(db, `users/${currentUser.uid}`), { code: candidateCode });
             await set(ref(db, `codes/${candidateCode}`), currentUser.uid);
@@ -475,32 +501,35 @@
             document.getElementById('landing-view').classList.remove('hidden');
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('nav-profile-info').classList.add('hidden');
+            document.getElementById('nav-menu-btn').classList.add('hidden');
         }
 
         function showDashboard() {
             document.getElementById('landing-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('nav-menu-btn').classList.remove('hidden');
             
-            // Update Header profile info
+            // Update Header profile info & Dashboard Code Card
             const navInfo = document.getElementById('nav-profile-info');
             navInfo.classList.remove('hidden');
             document.getElementById('my-display-name').innerText = userData.displayName;
             document.getElementById('my-code-badge').innerText = userData.code;
+            document.getElementById('dash-my-code').innerText = userData.code;
 
-            // Listen for user conversations
+            // Load active conversations
             loadConversations();
         }
 
-        window.handleSignIn = async () => {
-            const btn = document.getElementById('signin-btn');
+        window.handleSignUp = async () => {
+            const btn = document.getElementById('signup-btn');
             btn.disabled = true;
-            btn.innerText = "Signing in...";
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Signing up...`;
             try {
                 await signInAnonymously(auth);
             } catch (e) {
                 showToast(e.message, 'error');
                 btn.disabled = false;
-                btn.innerText = "Sign In Anonymously";
+                btn.innerHTML = `<i class="fas fa-user-plus"></i> Sign Up Anonymously`;
             }
         };
 
@@ -508,7 +537,6 @@
             if (!confirm("Are you sure? Your anonymous account will be permanently deleted!")) return;
 
             if (currentUser && userData) {
-                // Delete account node and code node automatically
                 await remove(ref(db, `codes/${userData.code}`));
                 await remove(ref(db, `users/${currentUser.uid}`));
             }
@@ -547,7 +575,6 @@
             // Generate deterministic Chat ID
             activeChatId = currentUser.uid < peerUid ? `${currentUser.uid}_${peerUid}` : `${peerUid}_${currentUser.uid}`;
 
-            // Save conversation to user's conversation list
             const userChatRef = ref(db, `userChats/${currentUser.uid}/${activeChatId}`);
             await update(userChatRef, {
                 peerUid: peerUid,
@@ -557,11 +584,10 @@
 
             document.getElementById('chat-modal').classList.remove('hidden');
 
-            // Cleanup previous chat listeners
             activeChatUnsubscribes.forEach(unsub => unsub());
             activeChatUnsubscribes = [];
 
-            // Listen to peer updates (Display name, status, last seen)
+            // Peer listener
             const peerRef = ref(db, `users/${peerUid}`);
             const unsubPeer = onValue(peerRef, (snap) => {
                 if (snap.exists()) {
@@ -579,7 +605,7 @@
             });
             activeChatUnsubscribes.push(unsubPeer);
 
-            // Listen to Messages
+            // Messages listener
             const messagesRef = ref(db, `chats/${activeChatId}/messages`);
             const unsubMsgs = onValue(messagesRef, (snap) => {
                 const container = document.getElementById('chat-messages-container');
@@ -594,7 +620,7 @@
             });
             activeChatUnsubscribes.push(unsubMsgs);
 
-            // Listen to Typing Indicator
+            // Typing listener
             const typingRef = ref(db, `chats/${activeChatId}/typing/${peerUid}`);
             const unsubTyping = onValue(typingRef, (snap) => {
                 const isTyping = snap.val() === true;
@@ -602,7 +628,7 @@
             });
             activeChatUnsubscribes.push(unsubTyping);
 
-            // Listen to Favorite & Block status
+            // Favorite & Block listeners
             const favRef = ref(db, `userChats/${currentUser.uid}/${activeChatId}/favorite`);
             const unsubFav = onValue(favRef, (snap) => {
                 const isFav = snap.val() === true;
@@ -645,7 +671,6 @@
             activeChatUnsubscribes = [];
         };
 
-        // Text Message Transmission
         window.sendTextMessage = async () => {
             const input = document.getElementById('chat-input-text');
             const text = input.value.trim();
@@ -656,7 +681,6 @@
         };
 
         async function sendMessage(payload) {
-            // Check if peer blocked user or user blocked peer
             const peerBlockSnap = await get(ref(db, `blocks/${activeChatPeerUid}/${currentUser.uid}`));
             if (peerBlockSnap.exists() && peerBlockSnap.val() === true) {
                 return showToast("Message could not be delivered.", "error");
@@ -669,12 +693,9 @@
             };
 
             await push(ref(db, `chats/${activeChatId}/messages`), msgData);
-            
-            // Clear typing state
             set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), false);
         }
 
-        // Typing event emitter
         window.handleTypingEvent = () => {
             set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), true);
             clearTimeout(typingTimeout);
@@ -683,7 +704,6 @@
             }, 2000);
         };
 
-        // Image Sharing (< 3MB)
         window.handleImageUpload = async (event) => {
             const file = event.target.files[0];
             if (!file) return;
@@ -703,7 +723,6 @@
             }
         };
 
-        // Voice Note Recording
         window.toggleVoiceRecord = async () => {
             const btn = document.getElementById('voice-record-btn');
             if (!isRecording) {
@@ -737,7 +756,6 @@
             }
         };
 
-        // Cloudinary Uploader Function (Unsigned)
         async function uploadToCloudinary(fileOrBlob) {
             const formData = new FormData();
             formData.append('file', fileOrBlob);
@@ -756,7 +774,6 @@
             }
         }
 
-        // Toggle Favorite
         window.toggleFavorite = async () => {
             const favRef = ref(db, `userChats/${currentUser.uid}/${activeChatId}/favorite`);
             const snap = await get(favRef);
@@ -765,7 +782,6 @@
             showToast(!isFav ? "Marked as Favorite" : "Removed from Favorites");
         };
 
-        // Toggle Block
         window.toggleBlock = async () => {
             const blockRef = ref(db, `blocks/${currentUser.uid}/${activeChatPeerUid}`);
             const snap = await get(blockRef);
@@ -774,7 +790,6 @@
             showToast(!isBlocked ? "User Blocked" : "User Unblocked");
         };
 
-        // Delete Conversation
         window.promptDeleteConvo = async () => {
             if (confirm("Deleting this conversation removes it from your list. Re-entering their 8-digit code will bring it back.")) {
                 await remove(ref(db, `userChats/${currentUser.uid}/${activeChatId}`));
@@ -783,7 +798,6 @@
             }
         };
 
-        // Load & Render Conversations in Sidebar
         function loadConversations() {
             const userChatsRef = ref(db, `userChats/${currentUser.uid}`);
             onValue(userChatsRef, (snap) => {
@@ -831,4 +845,3 @@
     </script>
 </body>
 </html>
-
