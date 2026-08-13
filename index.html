@@ -52,7 +52,8 @@
         .sidebar-body { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
         
         .user-code-badge { background: #f1f5f9; padding: 12px; border-radius: 10px; border: 1px dashed #cbd5e1; text-align: center; }
-        .user-code-badge span { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--primary); display: block; }
+        .user-code-badge span.code-val { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--primary); display: block; }
+        .user-code-badge span.uid-val { font-size: 0.72rem; font-weight: 600; color: var(--text-main); word-break: break-all; display: block; font-family: monospace; }
 
         .convo-section { margin-top: 10px; }
         .convo-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 10px; }
@@ -60,7 +61,7 @@
         .convo-item { padding: 10px 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         .convo-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .convo-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
-        .convo-name { font-weight: 600; font-size: 0.9rem; truncate: ellipsis; }
+        .convo-name { font-weight: 600; font-size: 0.9rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
         .convo-code { font-size: 0.75rem; color: var(--text-muted); }
         .convo-actions { display: flex; gap: 6px; }
         .convo-action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 0.85rem; border-radius: 4px; }
@@ -140,7 +141,7 @@
         <div class="modal-card">
             <i class="fas fa-arrows-rotate" style="font-size: 3rem; color: var(--warning); margin-bottom: 15px;"></i>
             <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 10px;">Friend Code Updated</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">A rare duplicate 8-digit friend code was detected in the database. To keep emergency messaging routes strictly unique, a new unused code has been assigned to you.</p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">A duplicate 8-digit friend code was detected. A new unique code has been assigned to you.</p>
             <button class="btn btn-primary" onclick="resolveCodeConflict()">Continue</button>
         </div>
     </div>
@@ -148,7 +149,7 @@
     <!-- Navigation Header -->
     <nav>
         <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <button class="menu-btn hidden" id="nav-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             <div class="logo"><i class="fas fa-bolt"></i> Quickk!</div>
         </div>
         <div id="nav-user-info" class="hidden" style="display: flex; align-items: center; gap: 10px;">
@@ -167,9 +168,9 @@
         <div class="sidebar-body">
             <div class="user-code-badge">
                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">YOUR 8-DIGIT FRIEND CODE</p>
-                <span id="sidebar-user-code">--------</span>
+                <span id="sidebar-user-code" class="code-val">--------</span>
                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 10px;">YOUR USER UID</p>
-                <span id="sidebar-user-uid" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); word-break: break-all; display: block;">----------------------------</span>
+                <span id="sidebar-user-uid" class="uid-val">----------------------------</span>
             </div>
 
             <button class="btn btn-primary" onclick="openEnterCodeDrawer()">
@@ -219,7 +220,7 @@
                 
                 <h4 style="margin: 15px 0 6px 0;">Data Collected:</h4>
                 <ul style="padding-left: 20px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;">
-                    <li><strong>Random 8-Digit Code:</strong> Assigned randomly by JavaScript to route your messages.</li>
+                    <li><strong>Random 8-Digit Code:</strong> Assigned randomly to route your messages.</li>
                     <li><strong>Display Name:</strong> Selected by you to identify yourself in chats.</li>
                     <li><strong>Presence & Typing Status:</strong> Realtime online/offline and active typing indicators.</li>
                     <li><strong>Transmitted Messages:</strong> Text, images (under 3MB), and voice notes sent during active conversations.</li>
@@ -296,7 +297,7 @@
                 <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
                     <span class="status-dot offline" id="chat-peer-status-dot"></span>
                     <div style="overflow: hidden;">
-                        <h4 id="chat-peer-name" style="font-weight: 700; font-size: 1rem; truncate: ellipsis;">Loading...</h4>
+                        <h4 id="chat-peer-name" style="font-weight: 700; font-size: 1rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Loading...</h4>
                         <p id="chat-peer-status-text" style="font-size: 0.72rem; color: var(--text-muted);">Offline</p>
                     </div>
                 </div>
@@ -338,7 +339,7 @@
     <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, deleteUser, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, deleteUser, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, get, update, remove, onDisconnect, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Firebase Configuration
@@ -355,8 +356,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Ensure user is not auto-logged in from previous sessions without clicking Sign In
-        setPersistence(auth, inMemoryPersistence);
+        // PERSISTENT LOGINS: Set persistence to browserLocalPersistence
+        setPersistence(auth, browserLocalPersistence).catch((err) => console.error("Persistence error:", err));
 
         const db = getDatabase(app);
 
@@ -419,6 +420,7 @@
                 document.getElementById('auth-view').classList.add('hidden');
                 document.getElementById('main-dashboard').classList.remove('hidden');
                 document.getElementById('nav-user-info').classList.remove('hidden');
+                document.getElementById('nav-menu-btn').classList.remove('hidden'); // Show menu icon when logged in
 
                 // Sync Presence
                 setupPresence(user.uid);
@@ -428,7 +430,7 @@
                 const snapshot = await get(userRef);
 
                 if (!snapshot.exists()) {
-                    // Assign new random 8 digit friend code
+                    // Generate guaranteed 8-digit friend code and save to RTDB
                     const code = generate8DigitCode();
                     currentUserData = {
                         uid: user.uid,
@@ -440,6 +442,12 @@
                     await set(userRef, currentUserData);
                 } else {
                     currentUserData = snapshot.val();
+                    // Fallback check if code was ever missing or empty
+                    if (!currentUserData.code || currentUserData.code.length !== 8) {
+                        const newCode = generate8DigitCode();
+                        currentUserData.code = newCode;
+                        await update(userRef, { code: newCode });
+                    }
                 }
 
                 // Check for duplicate code across accounts in RTDB
@@ -457,6 +465,11 @@
                 document.getElementById('auth-view').classList.remove('hidden');
                 document.getElementById('main-dashboard').classList.add('hidden');
                 document.getElementById('nav-user-info').classList.add('hidden');
+                document.getElementById('nav-menu-btn').classList.add('hidden'); // Hide menu icon on auth page
+
+                // Ensure sidebar is closed when logged out
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('sidebar-overlay').classList.remove('active');
             }
         });
 
@@ -557,6 +570,9 @@
 
         // --- SIDEBAR WORKFLOWS ---
         window.toggleSidebar = () => {
+            // Block sidebar from opening if user is on auth view or not logged in
+            if (!auth.currentUser) return;
+
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('sidebar-overlay').classList.toggle('active');
         };
@@ -637,8 +653,8 @@
                     item.className = 'convo-item';
                     item.innerHTML = `
                         <div class="convo-info" onclick="openChatFromSidebar('${peerUid}')">
-                            <span class="convo-name">${peer.displayName}</span>
-                            <span class="convo-code">Code: ${peer.code}</span>
+                            <span class="convo-name">${escapeHtml(peer.displayName || 'Anonymous')}</span>
+                            <span class="convo-code">Code: ${peer.code || '--------'}</span>
                         </div>
                         <div class="convo-actions">
                             <button class="convo-action-btn" onclick="toggleFavoriteConvo('${peerUid}', ${!convoData.favorite})" title="Toggle Favorite">
@@ -779,7 +795,7 @@
         }
 
         function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
         }
 
         // --- TYPING INDICATORS ---
