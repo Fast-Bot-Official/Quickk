@@ -168,10 +168,12 @@
             <div class="user-code-badge">
                 <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">YOUR 8-DIGIT FRIEND CODE</p>
                 <span id="sidebar-user-code">--------</span>
+                <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 10px;">YOUR USER UID</p>
+                <span id="sidebar-user-uid" style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); word-break: break-all; display: block;">----------------------------</span>
             </div>
 
             <button class="btn btn-primary" onclick="openEnterCodeDrawer()">
-                <i class="fas fa-user-plus"></i> Enter 8 Digit Code
+                <i class="fas fa-user-plus"></i> Enter Code or UID
             </button>
 
             <!-- Favorites Section -->
@@ -243,7 +245,7 @@
                 <h3 style="font-weight: 700; font-size: 1.2rem;"><i class="fas fa-id-card" style="color: var(--primary);"></i> Setup Display Name</h3>
             </div>
             <div class="drawer-body">
-                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Choose a display name for your anonymous emergency profile. Other users with your 8-digit code will see this name.</p>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Choose a display name for your anonymous emergency profile. Other users with your 8-digit code or UID will see this name.</p>
                 <div class="input-group">
                     <label>Display Name</label>
                     <input type="text" id="input-display-name" placeholder="e.g. Rescuer01 or SwiftUser" maxlength="25">
@@ -261,7 +263,7 @@
             <i class="fas fa-comment-medical" style="font-size: 2.5rem; color: var(--primary);"></i>
         </div>
         <h1 class="hero-title">Start chatting instantly</h1>
-        <p class="hero-desc">Enter another user's unique 8-digit emergency code from the sidebar to establish a secure real-time messaging link.</p>
+        <p class="hero-desc">Enter another user's unique 8-digit emergency code or User UID from the sidebar to establish a secure real-time messaging link.</p>
         <button class="btn btn-primary" style="max-width: 280px; margin: 0 auto;" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i> Open Sidebar
         </button>
@@ -271,14 +273,14 @@
     <div id="enter-code-overlay" class="drawer-overlay hidden">
         <div class="drawer-content">
             <div class="drawer-header">
-                <h3 style="font-weight: 700; font-size: 1.1rem;"><i class="fas fa-key" style="color: var(--primary);"></i> Connect via Friend Code</h3>
+                <h3 style="font-weight: 700; font-size: 1.1rem;"><i class="fas fa-key" style="color: var(--primary);"></i> Connect via Code or UID</h3>
                 <button class="menu-btn" onclick="closeEnterCodeDrawer()"><i class="fas fa-xmark"></i></button>
             </div>
             <div class="drawer-body">
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Enter the 8-digit code of the anonymous user you wish to message. You cannot enter your own code.</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Enter the 8-digit code or User UID of the anonymous user you wish to message. You cannot enter your own code or UID.</p>
                 <div class="input-group">
-                    <label>8-Digit Code</label>
-                    <input type="text" id="target-code-input" placeholder="e.g. 84920134" maxlength="8">
+                    <label>8-Digit Code or User UID</label>
+                    <input type="text" id="target-code-input" placeholder="e.g. 84920134 or User UID" maxlength="128">
                 </div>
             </div>
             <div class="drawer-footer">
@@ -336,7 +338,7 @@
     <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, deleteUser, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, get, update, remove, onDisconnect, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Firebase Configuration
@@ -352,6 +354,10 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        
+        // Ensure user is not auto-logged in from previous sessions without clicking Sign In
+        setPersistence(auth, inMemoryPersistence);
+
         const db = getDatabase(app);
 
         // Cloudinary Unsigned Upload Config
@@ -442,8 +448,9 @@
                 // UI Workflows: Unskippable Privacy Drawer & Profile Setup Drawer
                 evaluateUserStepDrawers();
 
-                // Update Sidebar Code UI & Conversations
+                // Update Sidebar Code, UID UI & Conversations
                 document.getElementById('sidebar-user-code').innerText = currentUserData.code;
+                document.getElementById('sidebar-user-uid').innerText = user.uid;
                 listenToConversations(user.uid);
             } else {
                 // User logged out / no session
@@ -565,23 +572,39 @@
         };
 
         window.initiateChatFromCode = async () => {
-            const targetCode = document.getElementById('target-code-input').value.trim();
-            if (targetCode.length !== 8) return showToast("Code must be 8 digits", "error");
-            if (targetCode === currentUserData.code) return showToast("You cannot enter your own code", "error");
-
-            const q = query(ref(db, 'users'), orderByChild('code'), equalTo(targetCode));
-            const snap = await get(q);
-
-            if (!snap.exists()) {
-                return showToast("No user found with that 8-digit code", "error");
+            const targetInput = document.getElementById('target-code-input').value.trim();
+            if (!targetInput) return showToast("Please enter an 8-digit code or UID", "error");
+            if (targetInput === currentUserData.code || targetInput === auth.currentUser.uid) {
+                return showToast("You cannot enter your own code or UID", "error");
             }
 
             let peerUid = null;
             let peerData = null;
-            snap.forEach((child) => {
-                peerUid = child.key;
-                peerData = child.val();
-            });
+
+            // Check if input is 8-digit code
+            if (targetInput.length === 8 && /^\d{8}$/.test(targetInput)) {
+                const q = query(ref(db, 'users'), orderByChild('code'), equalTo(targetInput));
+                const snap = await get(q);
+                if (snap.exists()) {
+                    snap.forEach((child) => {
+                        peerUid = child.key;
+                        peerData = child.val();
+                    });
+                }
+            }
+
+            // If not found by 8-digit code, try searching by UID directly
+            if (!peerUid) {
+                const userSnap = await get(ref(db, `users/${targetInput}`));
+                if (userSnap.exists()) {
+                    peerUid = userSnap.key;
+                    peerData = userSnap.val();
+                }
+            }
+
+            if (!peerUid || !peerData) {
+                return showToast("No user found with that 8-digit code or UID", "error");
+            }
 
             closeEnterCodeDrawer();
             openChatWindow(peerUid, peerData);
@@ -655,7 +678,7 @@
         };
 
         window.deleteConvo = async (peerUid) => {
-            if (confirm("Deleting this conversation requires re-entering the 8-digit friend code to visit it again. Continue?")) {
+            if (confirm("Deleting this conversation requires re-entering the 8-digit friend code or UID to visit it again. Continue?")) {
                 await remove(ref(db, `userConversations/${auth.currentUser.uid}/${peerUid}`));
                 showToast("Conversation deleted");
             }
