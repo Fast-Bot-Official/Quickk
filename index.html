@@ -3,350 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quickk! | Instant Emergency Messaging</title>
-    
+    <title>Quickk! | Anonymous Emergency Messaging</title>
+
+    <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --primary: #dc2626;
-            --primary-hover: #b91c1c;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
+            --border: #e2e8f0;
             --error: #ef4444;
             --success: #10b981;
             --warning: #f59e0b;
-            --sidebar-width: 320px;
-            --drawer-width: 420px;
+            --sidebar-width: 300px;
+            --chat-bubble-self: #2563eb;
+            --chat-bubble-other: #f1f5f9;
+            --chat-bubble-self-text: #ffffff;
+            --chat-bubble-other-text: #0f172a;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --chat-bubble-other: #334155;
+            --chat-bubble-other-text: #f8fafc;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; min-height: 100vh; }
 
-        /* Utility & UI Helpers */
+        /* Utility Classes */
         .hidden { display: none !important; }
-        .btn { cursor: pointer; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; }
+        .btn { cursor: pointer; padding: 12px 24px; border-radius: 8px; border: none; font-weight: 600; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; }
         .btn-primary { background: var(--primary); color: white; width: 100%; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25); }
-        .btn-secondary { background: #e2e8f0; color: var(--text-main); }
-        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-secondary { background: var(--border); color: var(--text-main); width: 100%; }
+        .btn-secondary:hover { opacity: 0.9; }
         .btn-danger { background: #fee2e2; color: var(--error); }
-        .btn-danger:hover { background: #fecaca; }
-        .btn:disabled { background: #cbd5e1 !important; color: #94a3b8 !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
+        .btn-danger:hover { background: #fca5a5; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
-        /* Navigation Header */
-        nav { background: white; padding: 0.9rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 90; }
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .menu-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-main); cursor: pointer; padding: 6px; border-radius: 6px; }
-        .menu-btn:hover { background: #f1f5f9; }
+        input, textarea, select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: 0.2s; background: var(--card-bg); color: var(--text-main); font-size: 0.95rem; }
+        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Sidebar Drawer */
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; visibility: hidden; transition: 0.3s ease; z-index: 1000; backdrop-filter: blur(3px); }
-        .sidebar-overlay.active { opacity: 1; visibility: visible; }
-        .sidebar { position: fixed; left: calc(-1 * var(--sidebar-width)); top: 0; width: var(--sidebar-width); height: 100%; background: white; box-shadow: 5px 0 25px rgba(0,0,0,0.1); z-index: 1001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        /* Emergency Warning Notice */
+        .emergency-notice { background: #fff7ed; border-left: 4px solid var(--warning); color: #9a3412; padding: 12px 16px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+        [data-theme="dark"] .emergency-notice { background: #2d1b06; color: #fdba74; }
+
+        /* Navigation */
+        nav { background: var(--card-bg); padding: 0.8rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary); }
+
+        /* Sidebar Menu */
+        .sidebar { position: fixed; left: calc(-1 * var(--sidebar-width)); top: 0; width: var(--sidebar-width); height: 100%; background: var(--card-bg); box-shadow: 5px 0 25px rgba(0,0,0,0.15); z-index: 1001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px 20px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar.active { left: 0; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .sidebar-body { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
-        
-        .user-code-badge { background: #f1f5f9; padding: 12px; border-radius: 10px; border: 1px dashed #cbd5e1; text-align: center; }
-        .user-code-badge span.code-val { font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; color: var(--primary); display: block; }
-        .user-code-badge span.uid-val { font-size: 0.72rem; font-weight: 600; color: var(--text-main); word-break: break-all; display: block; font-family: monospace; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; backdrop-filter: blur(2px); }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--text-main); font-weight: 500; cursor: pointer; transition: 0.2s; text-decoration: none; margin-bottom: 4px; }
+        .sidebar-menu-item:hover { background: var(--bg); color: var(--primary); }
+        .sidebar-user-card { background: var(--bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
 
-        .convo-section { margin-top: 10px; }
-        .convo-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 10px; }
-        .convo-list { display: flex; flex-direction: column; gap: 8px; }
-        .convo-item { padding: 10px 12px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .convo-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
-        .convo-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
-        .convo-name { font-weight: 600; font-size: 0.9rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-        .convo-code { font-size: 0.75rem; color: var(--text-muted); }
-        .convo-actions { display: flex; gap: 6px; }
-        .convo-action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 0.85rem; border-radius: 4px; }
-        .convo-action-btn:hover { color: var(--primary); background: #e2e8f0; }
+        /* Containers */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .auth-container { max-width: 450px; margin: 40px auto; padding: 40px 30px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
 
-        /* General Right/Center Drawers & Modals */
-        .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: flex-end; backdrop-filter: blur(4px); transition: 0.3s; }
-        .drawer-content { background: white; width: 100%; max-width: var(--drawer-width); height: 100%; display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.15); animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        .drawer-header { padding: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .drawer-body { padding: 20px; flex: 1; overflow-y: auto; }
-        .drawer-footer { padding: 20px; border-top: 1px solid #e2e8f0; background: #f8fafc; }
+        /* Avatars */
+        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px; border: 3px solid var(--primary); display: block; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .offline { background: var(--text-muted); }
 
-        /* Center Modal style */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px; }
-        .modal-card { background: white; border-radius: 16px; width: 100%; max-width: 480px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; }
+        /* Chat Dashboard */
+        .chat-list-item { background: var(--card-bg); padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; }
+        .chat-list-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
+        .unread-badge { background: var(--primary); color: white; border-radius: 50%; padding: 2px 8px; font-size: 0.75rem; font-weight: bold; }
 
-        /* Inputs */
-        .input-group { margin-bottom: 18px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
-        input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.95rem; transition: 0.2s; }
-        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+        /* Chat Window Screen */
+        .chat-window { position: fixed; inset: 0; background: var(--bg); z-index: 500; display: flex; flex-direction: column; }
+        .chat-header { background: var(--card-bg); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-composer { background: var(--card-bg); padding: 12px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
 
-        /* Status & Badges */
-        .status-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-        .status-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
-        .status-dot.offline { background: var(--text-muted); }
+        /* Message Bubbles */
+        .msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; word-break: break-word; position: relative; animation: fadeIn 0.2s ease; }
+        .msg-self { align-self: flex-end; background: var(--chat-bubble-self); color: var(--chat-bubble-self-text); border-bottom-right-radius: 2px; }
+        .msg-other { align-self: flex-start; background: var(--chat-bubble-other); color: var(--chat-bubble-other-text); border-bottom-left-radius: 2px; }
+        .msg-time { font-size: 0.68rem; opacity: 0.75; margin-top: 4px; text-align: right; display: block; }
+        .msg-image { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 5px; cursor: pointer; }
 
-        /* Dashboard & Hero */
-        .dashboard { max-width: 900px; margin: 60px auto; padding: 0 20px; text-align: center; }
-        .hero-title { font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px; letter-spacing: -1px; }
-        .hero-desc { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 30px auto; }
-        
-        /* Chat UI Inside Drawer */
-        .chat-container { display: flex; flex-direction: column; height: 100%; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #f8fafc; }
-        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 0.9rem; position: relative; word-break: break-word; }
-        .chat-bubble.sent { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-bubble.received { background: white; color: var(--text-main); align-self: flex-start; border: 1px solid #e2e8f0; border-bottom-left-radius: 2px; }
-        .chat-time { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-align: right; display: block; }
-        .chat-img { max-width: 100%; border-radius: 8px; margin-top: 6px; cursor: pointer; }
-        .chat-audio { width: 100%; margin-top: 6px; height: 36px; }
+        /* Voice Note Controls */
+        .voice-player { display: flex; align-items: center; gap: 10px; min-width: 200px; margin-top: 4px; }
+        .voice-btn { background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 50%; color: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .chat-input-bar { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px; }
-        .chat-input-bar input { flex: 1; padding: 10px 14px; }
-        .chat-icon-btn { background: #f1f5f9; border: none; width: 40px; height: 40px; border-radius: 50%; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.2s; flex-shrink: 0; }
-        .chat-icon-btn:hover { background: #e2e8f0; color: var(--primary); }
-        .chat-icon-btn.recording { background: #fee2e2; color: var(--error); animation: pulse 1s infinite; }
-
-        /* Toast notifications */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-        .toast { background: white; color: var(--text-main); padding: 12px 18px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; min-width: 260px; border-left: 4px solid var(--primary); animation: slideInRight 0.3s forwards; font-size: 0.9rem; }
-        .toast.error { border-color: var(--error); }
+        /* Toasts */
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--card-bg); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; min-width: 280px; border-left: 4px solid var(--primary); animation: slideInRight 0.3s forwards; font-size: 0.9rem; }
         .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--error); }
+        .toast.warning { border-color: var(--warning); }
+
+        /* Modals */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); padding: 20px; }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 16px; max-width: 480px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.2); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+
+        /* Offline Notice */
+        #offline-notice { background: var(--error); color: white; text-align: center; padding: 8px; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 1000; }
 
         /* Animations */
-        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Maintenance Screen Overlay */
-        #maintenance-screen { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; margin: 15px auto; }
+            .msg-bubble { max-width: 85%; }
+            #toast-container { right: 15px; left: 15px; bottom: 15px; }
+            .toast { min-width: auto; }
+        }
     </style>
 </head>
 <body>
 
+    <div id="offline-notice" class="hidden"><i class="fas fa-wifi"></i> You are offline. Real-time messaging is paused.</div>
     <div id="toast-container"></div>
 
-    <!-- Maintenance Screen -->
-    <div id="maintenance-screen" class="hidden">
-        <i class="fas fa-screwdriver-wrench" style="font-size: 4rem; color: var(--warning); margin-bottom: 20px;"></i>
-        <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 10px;">System Maintenance</h1>
-        <p style="color: var(--text-muted); max-width: 450px;">Quickk! is currently undergoing scheduled emergency maintenance to optimize messaging speeds. Please check back shortly.</p>
-    </div>
+    <!-- Sidebar Drawer -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--primary); font-weight: 800;"><i class="fas fa-bolt"></i> Quickk!</h2>
+                <i class="fas fa-times" onclick="toggleSidebar()" style="cursor: pointer; font-size: 1.2rem; color: var(--text-muted);"></i>
+            </div>
+            
+            <div class="sidebar-user-card" id="sidebar-user-info">
+                <img id="sb-avatar" src="" class="avatar-preview" style="width: 60px; height: 60px; margin-bottom: 8px;">
+                <h4 id="sb-name" style="font-weight: 700;">Loading...</h4>
+                <p id="sb-id" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">ID: --------</p>
+                <button class="btn btn-secondary" onclick="copyMyId()" style="margin-top: 10px; padding: 6px 12px; font-size: 0.75rem;">
+                    <i class="fas fa-copy"></i> Copy Quickk! ID
+                </button>
+            </div>
 
-    <!-- Mandatory Code Conflict Regeneration Popup Modal -->
-    <div id="code-conflict-modal" class="modal-overlay hidden">
-        <div class="modal-card">
-            <i class="fas fa-arrows-rotate" style="font-size: 3rem; color: var(--warning); margin-bottom: 15px;"></i>
-            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 10px;">Friend Code Updated</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">A duplicate 8-digit friend code was detected. A new unique code has been assigned to you.</p>
-            <button class="btn btn-primary" onclick="resolveCodeConflict()">Continue</button>
+            <div style="margin-top: 25px;">
+                <div class="sidebar-menu-item" onclick="navigateTo('dashboard')"><i class="fas fa-comments"></i> My Chats</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('find')"><i class="fas fa-search"></i> Find Someone</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('profile')"><i class="fas fa-user"></i> My Profile</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('settings')"><i class="fas fa-cog"></i> Settings</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('privacy-safety')"><i class="fas fa-shield-alt"></i> Privacy & Safety</div>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border); padding-top: 15px; text-align: center;">
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Quickk! Anonymous Emergency v1.0</p>
         </div>
     </div>
 
     <!-- Navigation Header -->
-    <nav>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="menu-btn hidden" id="nav-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-            <div class="logo"><i class="fas fa-bolt"></i> Quickk!</div>
+    <nav id="main-nav">
+        <div class="logo" onclick="toggleSidebar()">
+            <i class="fas fa-bars" style="color: var(--text-muted); font-size: 1.1rem;"></i>
+            <span>Quickk!</span>
         </div>
-        <div id="nav-user-info" class="hidden" style="display: flex; align-items: center; gap: 10px;">
-            <span id="nav-display-name" style="font-weight: 600; font-size: 0.9rem;"></span>
-            <span class="status-dot online"></span>
+        <div id="nav-actions" style="display: flex; align-items: center; gap: 15px;">
+            <img id="nav-user-avatar" class="nav-avatar hidden" src="" onclick="navigateTo('profile')" title="My Profile">
         </div>
     </nav>
 
-    <!-- Sidebar Menu -->
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3 style="font-weight: 700; font-size: 1.1rem;"><i class="fas fa-shield-cat" style="color: var(--primary);"></i> Quickk! Menu</h3>
-            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-xmark"></i></button>
+    <!-- LOADING SCREEN -->
+    <div id="screen-loading" class="auth-container fade-in" style="margin-top: 100px;">
+        <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+        <h3 id="loading-text">Starting Quickk!...</h3>
+    </div>
+
+    <!-- 1. PROFILE SETUP SCREEN -->
+    <div id="screen-profile-setup" class="auth-container hidden fade-in">
+        <h2 style="margin-bottom: 10px;">Complete Profile</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">Set up your public anonymous identity to get started.</p>
+        
+        <div class="emergency-notice">
+            <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
+            <span>Never use real names or sensitive identifying details in your bio or display name.</span>
         </div>
-        <div class="sidebar-body">
-            <div class="user-code-badge">
-                <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">YOUR 8-DIGIT FRIEND CODE</p>
-                <span id="sidebar-user-code" class="code-val">--------</span>
-                <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 10px;">YOUR USER UID</p>
-                <span id="sidebar-user-uid" class="uid-val">----------------------------</span>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img id="setup-avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Quickk" class="avatar-preview">
+            <label for="setup-avatar-input" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; width: auto;">
+                <i class="fas fa-camera"></i> Upload Photo (&lt; 2MB)
+            </label>
+            <input type="file" id="setup-avatar-input" accept="image/*" class="hidden" onchange="previewProfileImage(event)">
+        </div>
+
+        <div class="input-group">
+            <label>Display Name *</label>
+            <input type="text" id="setup-name" placeholder="e.g. ShadowRunner" maxlength="24">
+        </div>
+
+        <div class="input-group">
+            <label>Bio (Optional)</label>
+            <textarea id="setup-bio" rows="3" placeholder="Write a short anonymous bio..." maxlength="160"></textarea>
+        </div>
+
+        <button id="btn-save-profile" class="btn btn-primary" onclick="saveProfileProcess()">Continue to Quickk!</button>
+    </div>
+
+    <!-- 2. PRIVACY POLICY SCREEN -->
+    <div id="screen-privacy-policy" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 650px; text-align: left;">
+            <h2 style="text-align: center; margin-bottom: 10px;"><i class="fas fa-user-shield" style="color: var(--primary);"></i> Privacy Policy</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Please read and scroll to the bottom to continue.</p>
+
+            <div id="policy-scroll-box" style="height: 250px; overflow-y: auto; border: 1px solid var(--border); padding: 15px; border-radius: 8px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; background: var(--bg);" onscroll="checkPolicyScroll()">
+                <p><strong>1. Anonymous Authentication:</strong> Quickk! uses Firebase Anonymous Authentication. Your account is linked to a system UID, but no personal information (email, phone, real name) is strictly required.</p><br>
+                <p><strong>2. Anonymous ID & Profile:</strong> You are assigned an 8-digit unique ID. Your display name, bio, and profile picture are visible to anyone with whom you communicate or who searches your ID.</p><br>
+                <p><strong>3. Media & Messages:</strong> Messages are stored in Firebase Realtime Database. Media attachments (images, voice notes) are uploaded via Cloudinary. Uploaded media is subject to size restrictions (Images/Voice &lt; 1MB, Avatars &lt; 2MB).</p><br>
+                <p><strong>4. Anonymity Disclaimer:</strong> Quickk! provides anonymous routing, but does not guarantee absolute mathematical untraceability. Do not post illegal, harmful, or dangerous content.</p><br>
+                <p><strong>5. Emergency Use Notice:</strong> Quickk! is a peer-to-peer anonymous messaging service. <strong>It DOES NOT replace official emergency responders (911, 112, 100, etc.).</strong> If you are in immediate danger, contact local emergency services immediately.</p>
             </div>
 
-            <button class="btn btn-primary" onclick="openEnterCodeDrawer()">
-                <i class="fas fa-user-plus"></i> Enter Code or UID
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="chk-accept-policy" disabled onchange="togglePolicyBtn()">
+                    <span>I have read and understood the Quickk! Privacy Policy.</span>
+                </label>
+            </div>
+
+            <button id="btn-accept-policy" class="btn btn-primary" disabled onclick="acceptPrivacyPolicy()">Accept & Open Dashboard</button>
+        </div>
+    </div>
+
+    <!-- 3. DASHBOARD (MAIN CHATS) -->
+    <div id="screen-dashboard" class="container hidden fade-in">
+        <div class="emergency-notice">
+            <i class="fas fa-shield-alt" style="margin-top: 2px;"></i>
+            <div>
+                <strong>Quickk! Emergency Communication</strong><br>
+                This app does not dispatch emergency responders. Contact your local authority in life-threatening situations.
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <h1>Your Chats</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Talk anonymously. Connect quickly.</p>
+            </div>
+            <button class="btn btn-primary" style="width: auto;" onclick="navigateTo('find')">
+                <i class="fas fa-plus"></i> Start Chat
+            </button>
+        </div>
+
+        <div id="chat-list-container">
+            <!-- Dynamic chats injected here -->
+        </div>
+    </div>
+
+    <!-- 4. FIND USER SCREEN -->
+    <div id="screen-find" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 500px;">
+            <h2>Find someone on Quickk!</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Enter an 8-digit anonymous Quickk! ID to locate a user.</p>
+
+            <div class="input-group">
+                <input type="text" id="search-id-input" placeholder="Enter 8-digit ID (e.g. 48291736)" maxlength="8" pattern="\d{8}">
+            </div>
+            <button class="btn btn-primary" onclick="searchUserById()"><i class="fas fa-search"></i> Find User</button>
+
+            <div id="search-result-card" class="hidden" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <img id="sr-avatar" src="" class="avatar-preview">
+                <h3 id="sr-name"></h3>
+                <p id="sr-bio" style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;"></p>
+                <p id="sr-id" style="font-size: 0.8rem; font-weight: bold; color: var(--primary); margin-bottom: 15px;"></p>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="sr-start-btn"><i class="fas fa-paper-plane"></i> Start Chat</button>
+                    <button class="btn btn-danger" id="sr-block-btn" style="width: auto;"><i class="fas fa-ban"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. USER PROFILE VIEW / EDIT SCREEN -->
+    <div id="screen-profile" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 500px;">
+            <h2>My Anonymous Profile</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Manage your anonymous public details</p>
+
+            <img id="my-profile-avatar" src="" class="avatar-preview">
+            
+            <div class="input-group">
+                <label>Display Name</label>
+                <input type="text" id="edit-name" maxlength="24">
+            </div>
+
+            <div class="input-group">
+                <label>Bio</label>
+                <textarea id="edit-bio" rows="3" maxlength="160"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Your Quickk! ID (Public)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="my-public-id" readonly style="font-weight: bold; letter-spacing: 1px;">
+                    <button class="btn btn-secondary" style="width: auto;" onclick="copyMyId()"><i class="fas fa-copy"></i></button>
+                    <button class="btn btn-secondary" style="width: auto;" onclick="shareMyId()"><i class="fas fa-share-alt"></i></button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="updateProfileChanges()">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- 6. SETTINGS SCREEN -->
+    <div id="screen-settings" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 500px; text-align: left;">
+            <h2 style="text-align: center; margin-bottom: 20px;">Settings</h2>
+            
+            <div class="input-group">
+                <label>Appearance Theme</label>
+                <select id="setting-theme" onchange="applyThemePreference(this.value)">
+                    <option value="light">Light Mode</option>
+                    <option value="dark">Dark Mode</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Accessibility</label>
+                <label style="display:flex; align-items:center; gap:10px; font-weight:normal; font-size:0.9rem; cursor:pointer;">
+                    <input type="checkbox" id="setting-reduce-anim"> Reduce Animations
+                </label>
+            </div>
+
+            <button class="btn btn-primary" onclick="navigateTo('dashboard')">Done</button>
+        </div>
+    </div>
+
+    <!-- 7. PRIVACY & SAFETY INFORMATIONAL SCREEN -->
+    <div id="screen-privacy-safety" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 600px; text-align: left;">
+            <h2 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-shield-alt" style="color: var(--primary);"></i> Safety & Anonymity</h2>
+            <div style="font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 12px;">
+                <p>• <strong>Internal Identity:</strong> Your account is backed by an internal Firebase UID, but users only identify you through your 8-digit Quickk! ID.</p>
+                <p>• <strong>Data Storage:</strong> Messages remain safely in Firebase RTDB, and images/voice notes are processed through Cloudinary unsigned pipelines.</p>
+                <p>• <strong>Blocking & Reporting:</strong> Use the chat header menu or profile card to block troublesome users or send a report to admins.</p>
+                <p>• <strong>Emergency Notice:</strong> Quickk! is not a substitute for local police, ambulance, or emergency rescue services.</p>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 25px;" onclick="navigateTo('dashboard')">Back to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- FULL SCREEN CHAT INTERFACE -->
+    <div id="chat-window" class="chat-window hidden">
+        <div class="chat-header">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-arrow-left" onclick="closeChatWindow()" style="cursor: pointer; font-size: 1.2rem; color: var(--text-muted);"></i>
+                <img id="chat-target-avatar" src="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <h4 id="chat-target-name" style="font-size: 0.95rem;">Anonymous User</h4>
+                    <span id="chat-target-presence" style="font-size: 0.75rem; color: var(--text-muted);"><span class="status-dot offline"></span> Offline</span>
+                </div>
+            </div>
+            <div>
+                <i class="fas fa-ellipsis-v" onclick="toggleChatMenu()" style="cursor: pointer; padding: 8px; color: var(--text-muted);"></i>
+            </div>
+        </div>
+
+        <div id="chat-messages-container" class="chat-messages">
+            <!-- Messages render here -->
+        </div>
+
+        <div id="chat-typing-indicator" style="padding: 4px 20px; font-size: 0.75rem; color: var(--text-muted);" class="hidden">
+            Anonymous is typing...
+        </div>
+
+        <!-- Chat Composer Controls -->
+        <div class="chat-composer">
+            <label for="chat-image-input" style="cursor: pointer; padding: 8px; color: var(--text-muted);">
+                <i class="fas fa-paperclip" style="font-size: 1.2rem;"></i>
+            </label>
+            <input type="file" id="chat-image-input" accept="image/*" class="hidden" onchange="handleChatImageUpload(event)">
+
+            <input type="text" id="chat-text-input" placeholder="Type an anonymous message..." oninput="handleTypingEvent()" onkeypress="if(event.key==='Enter') sendTextMessage()">
+
+            <button id="voice-record-btn" class="btn" style="padding: 10px; background: transparent; color: var(--text-muted);" onclick="toggleVoiceRecording()">
+                <i class="fas fa-microphone" style="font-size: 1.2rem;"></i>
             </button>
 
-            <!-- Favorites Section -->
-            <div class="convo-section">
-                <div class="convo-section-title"><i class="fas fa-star" style="color: var(--warning);"></i> Favorite Conversations</div>
-                <div class="convo-list" id="fav-convos-list">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px;">No favorites yet</p>
-                </div>
-            </div>
-
-            <!-- My Conversations Section -->
-            <div class="convo-section">
-                <div class="convo-section-title"><i class="fas fa-comments"></i> My Conversations</div>
-                <div class="convo-list" id="my-convos-list">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px;">No active conversations</p>
-                </div>
-            </div>
-        </div>
-        <div style="padding: 20px; border-top: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px;">
-            <button class="btn btn-danger" onclick="logoutAccount()"><i class="fas fa-right-from-bracket"></i> Logout</button>
-            <button class="btn btn-secondary" onclick="redirectToSupport()"><i class="fas fa-bug"></i> Report Bugs</button>
+            <button class="btn btn-primary" style="width: auto; padding: 10px 16px;" onclick="sendTextMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 
-    <!-- Login Container / Auth View -->
-    <div id="auth-view" style="max-width: 400px; margin: 80px auto; padding: 40px; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center;">
-        <div style="width: 60px; height: 60px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
-            <i class="fas fa-bolt" style="font-size: 1.8rem; color: var(--primary);"></i>
-        </div>
-        <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 8px;">Welcome to Quickk!</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">Instant, anonymous emergency messaging platform. No password required.</p>
-        <button class="btn btn-primary" onclick="initAnonymousSignIn()">Sign In Anonymously</button>
-    </div>
-
-    <!-- Unskippable Privacy Policy Drawer -->
-    <div id="privacy-drawer-overlay" class="drawer-overlay hidden">
-        <div class="drawer-content" style="max-width: 500px; margin: auto; height: auto; max-height: 90vh; border-radius: 16px;">
-            <div class="drawer-header">
-                <h3 style="font-weight: 700; font-size: 1.2rem;"><i class="fas fa-user-shield" style="color: var(--primary);"></i> App Privacy & Data Policy</h3>
-            </div>
-            <div class="drawer-body" style="font-size: 0.88rem; color: var(--text-main);">
-                <p style="margin-bottom: 12px;"><strong>Purpose of Quickk!:</strong> Quickk! is created strictly for instant, fast, and lightweight emergency messaging between anonymous users utilizing 8-digit friend codes.</p>
-                
-                <h4 style="margin: 15px 0 6px 0;">Data Collected:</h4>
-                <ul style="padding-left: 20px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;">
-                    <li><strong>Random 8-Digit Code:</strong> Assigned randomly to route your messages.</li>
-                    <li><strong>Display Name:</strong> Selected by you to identify yourself in chats.</li>
-                    <li><strong>Presence & Typing Status:</strong> Realtime online/offline and active typing indicators.</li>
-                    <li><strong>Transmitted Messages:</strong> Text, images (under 3MB), and voice notes sent during active conversations.</li>
-                </ul>
-
-                <h4 style="margin: 15px 0 6px 0;">Data Management & Auto-Deletion:</h4>
-                <p style="margin-bottom: 12px;">All accounts are <strong>completely anonymous</strong>. To safeguard emergency data privacy, <strong>your anonymous account and associated RTDB data will automatically delete permanently upon logging out</strong>.</p>
-            </div>
-            <div class="drawer-footer">
-                <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; text-align: left;">
-                    <input type="checkbox" id="privacy-checkbox" onchange="togglePrivacyContinueBtn()" style="margin-top: 3px; width: 18px; height: 18px; cursor: pointer;">
-                    <label for="privacy-checkbox" style="font-size: 0.8rem; color: var(--text-main); cursor: pointer;">I agree to the privacy policy, I understand and have read everything stated.</label>
-                </div>
-                <button id="privacy-continue-btn" class="btn btn-primary" disabled onclick="completePrivacyDrawer()">Continue</button>
+    <!-- VOICE RECORDING PREVIEW MODAL -->
+    <div id="modal-voice-preview" class="modal hidden">
+        <div class="modal-content" style="text-align: center;">
+            <h3>Voice Note Preview</h3>
+            <p id="voice-duration-label" style="color: var(--text-muted); margin: 10px 0;">00:00</p>
+            <audio id="voice-audio-preview" controls style="width: 100%; margin: 15px 0;"></audio>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="cancelVoiceNote()">Discard</button>
+                <button class="btn btn-primary" onclick="uploadAndSendVoiceNote()">Send Voice Note</button>
             </div>
         </div>
     </div>
 
-    <!-- Mandatory Profile Completion Drawer -->
-    <div id="profile-drawer-overlay" class="drawer-overlay hidden">
-        <div class="drawer-content" style="max-width: 450px; margin: auto; height: auto; border-radius: 16px;">
-            <div class="drawer-header">
-                <h3 style="font-weight: 700; font-size: 1.2rem;"><i class="fas fa-id-card" style="color: var(--primary);"></i> Setup Display Name</h3>
-            </div>
-            <div class="drawer-body">
-                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Choose a display name for your anonymous emergency profile. Other users with your 8-digit code or UID will see this name.</p>
-                <div class="input-group">
-                    <label>Display Name</label>
-                    <input type="text" id="input-display-name" placeholder="e.g. Rescuer01 or SwiftUser" maxlength="25">
-                </div>
-            </div>
-            <div class="drawer-footer">
-                <button class="btn btn-primary" onclick="saveProfileDetails()">Save Details</button>
+    <!-- IMAGE PREVIEW MODAL -->
+    <div id="modal-image-preview" class="modal hidden">
+        <div class="modal-content" style="text-align: center;">
+            <h3>Send Image</h3>
+            <img id="image-send-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin: 15px 0;">
+            <p id="image-size-label" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="cancelImageSend()">Cancel</button>
+                <button class="btn btn-primary" id="btn-confirm-image-send" onclick="confirmSendImage()">Upload & Send</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Dashboard -->
-    <div id="main-dashboard" class="dashboard hidden">
-        <div style="width: 80px; height: 80px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
-            <i class="fas fa-comment-medical" style="font-size: 2.5rem; color: var(--primary);"></i>
-        </div>
-        <h1 class="hero-title">Start chatting instantly</h1>
-        <p class="hero-desc">Enter another user's unique 8-digit emergency code or User UID from the sidebar to establish a secure real-time messaging link.</p>
-        <button class="btn btn-primary" style="max-width: 280px; margin: 0 auto;" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i> Open Sidebar
-        </button>
-    </div>
-
-    <!-- Enter Code Drawer -->
-    <div id="enter-code-overlay" class="drawer-overlay hidden">
-        <div class="drawer-content">
-            <div class="drawer-header">
-                <h3 style="font-weight: 700; font-size: 1.1rem;"><i class="fas fa-key" style="color: var(--primary);"></i> Connect via Code or UID</h3>
-                <button class="menu-btn" onclick="closeEnterCodeDrawer()"><i class="fas fa-xmark"></i></button>
+    <!-- REPORT MODAL -->
+    <div id="modal-report" class="modal hidden">
+        <div class="modal-content">
+            <h3>Report User</h3>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Category</label>
+                <select id="report-category">
+                    <option value="Harassment">Harassment</option>
+                    <option value="Spam">Spam</option>
+                    <option value="Threats">Threatening Behavior</option>
+                    <option value="Impersonation">Impersonation</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
-            <div class="drawer-body">
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Enter the 8-digit code or User UID of the anonymous user you wish to message. You cannot enter your own code or UID.</p>
-                <div class="input-group">
-                    <label>8-Digit Code or User UID</label>
-                    <input type="text" id="target-code-input" placeholder="e.g. 84920134 or User UID" maxlength="128">
-                </div>
+            <div class="input-group">
+                <label>Details</label>
+                <textarea id="report-description" rows="3" placeholder="Describe the issue..."></textarea>
             </div>
-            <div class="drawer-footer">
-                <button class="btn btn-primary" onclick="initiateChatFromCode()">Chat</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-report')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitUserReport()">Submit Report</button>
             </div>
         </div>
     </div>
 
-    <!-- Direct Chat Drawer -->
-    <div id="chat-drawer-overlay" class="drawer-overlay hidden">
-        <div class="drawer-content" style="max-width: 500px;">
-            <div class="drawer-header">
-                <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
-                    <span class="status-dot offline" id="chat-peer-status-dot"></span>
-                    <div style="overflow: hidden;">
-                        <h4 id="chat-peer-name" style="font-weight: 700; font-size: 1rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Loading...</h4>
-                        <p id="chat-peer-status-text" style="font-size: 0.72rem; color: var(--text-muted);">Offline</p>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <button class="convo-action-btn" id="block-btn" onclick="toggleBlockUser()" title="Block/Unblock User"><i class="fas fa-ban"></i></button>
-                    <button class="menu-btn" onclick="closeChatDrawer()"><i class="fas fa-xmark"></i></button>
-                </div>
-            </div>
-
-            <!-- Chat Container -->
-            <div class="chat-container">
-                <div class="chat-messages" id="chat-messages-body">
-                    <!-- Dynamic Messages -->
-                </div>
-
-                <!-- Typing indicator -->
-                <div id="typing-indicator" style="padding: 6px 15px; font-size: 0.75rem; color: var(--text-muted); font-style: italic; background: #f8fafc;" class="hidden">
-                    <i class="fas fa-pen-nib"></i> User is typing...
-                </div>
-
-                <!-- Input Controls -->
-                <div class="chat-input-bar" id="chat-input-controls">
-                    <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="handleImageSelected(event)">
-                    <button class="chat-icon-btn" onclick="document.getElementById('image-file-input').click()" title="Send Image (<3MB)">
-                        <i class="fas fa-paperclip"></i>
-                    </button>
-                    <button class="chat-icon-btn" id="record-audio-btn" onclick="toggleAudioRecording()" title="Send Voice Note">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    <input type="text" id="chat-text-input" placeholder="Type an emergency message..." oninput="handleTypingEvent()" onkeydown="if(event.key==='Enter') sendTextMessage()">
-                    <button class="chat-icon-btn" style="background: var(--primary); color: white;" onclick="sendTextMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase SDK Imports -->
+    <!-- FIREBASE MODULE & APPLICATION LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut, deleteUser, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, get, update, remove, onDisconnect, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, push, update, remove, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Firebase Configuration
+        // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBEnDg8YoBHASIDMFQNLwq_Jww1VgbeTzA",
             authDomain: "quickkmessaging.firebaseapp.com",
-            databaseURL: "https://quickkmessaging-default-rtdb.firebaseio.com",
+            databaseURL: "https://quickkmessaging-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "quickkmessaging",
             storageBucket: "quickkmessaging.firebasestorage.app",
             messagingSenderId: "759718304711",
@@ -355,643 +477,764 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
-        // PERSISTENT LOGINS: Set persistence to browserLocalPersistence
-        setPersistence(auth, browserLocalPersistence).catch((err) => console.error("Persistence error:", err));
-
         const db = getDatabase(app);
 
-        // Cloudinary Unsigned Upload Config
-        const CLOUDINARY_CLOUD_NAME = "xsm4rlt6";
-        const CLOUDINARY_PRESET = "ml_default";
+        // --- CLOUDINARY CONFIGURATION ---
+        const CLOUDINARY_CLOUD_NAME = "dgdaqwfib";
+        const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
-        // Application Global States
-        let currentUserData = null;
-        let activeChatPeerUid = null;
-        let activeChatPeerCode = null;
-        let activeChatRoomId = null;
-        let isRecording = false;
+        // GLOBAL APPLICATION STATE
+        let currentUser = null;
+        let currentUserProfile = null;
+        let activeChatId = null;
+        let activeChatTargetUid = null;
+        let activeChatListener = null;
+        let typingTimeout = null;
         let mediaRecorder = null;
         let audioChunks = [];
-        let typingTimeout = null;
+        let voiceBlob = null;
+        let voiceTimerInterval = null;
+        let voiceSeconds = 0;
+        let pendingImageFile = null;
 
-        // --- TOAST NOTIFICATION UTILITY ---
+        // --- TOAST NOTIFICATIONS ---
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
-            toast.innerHTML = `<i class="fas ${icon}" style="color: var(--${type === 'success' ? 'success' : 'error'})"></i> <span>${msg}</span>`;
+            const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+            toast.innerHTML = `<i class="fas ${icon}" style="color: var(--${type === 'info' ? 'primary' : type})"></i> <span>${msg}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         };
 
-        // --- MAINTENANCE MODE CHECKER ---
-        function monitorMaintenance() {
-            onValue(ref(db, 'maintenance'), (snapshot) => {
-                const isMaintenance = snapshot.val();
-                const screen = document.getElementById('maintenance-screen');
-                if (isMaintenance === true) {
-                    screen.classList.remove('hidden');
-                } else {
-                    screen.classList.add('hidden');
-                }
+        // --- UI NAVIGATION ENGINE ---
+        window.navigateTo = (screenId) => {
+            ['loading', 'profile-setup', 'privacy-policy', 'dashboard', 'find', 'profile', 'settings', 'privacy-safety'].forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
             });
-        }
-        monitorMaintenance();
-
-        // --- HELPER: GENERATE RANDOM 8 DIGIT CODE ---
-        function generate8DigitCode() {
-            return Math.floor(10000000 + Math.random() * 90000000).toString();
-        }
-
-        // --- AUTH & ANONYMOUS SIGN IN ---
-        window.initAnonymousSignIn = async () => {
-            try {
-                await signInAnonymously(auth);
-            } catch (err) {
-                showToast("Sign in failed: " + err.message, "error");
-            }
-        };
-
-        // Persistent Auth Listener
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('auth-view').classList.add('hidden');
-                document.getElementById('main-dashboard').classList.remove('hidden');
-                document.getElementById('nav-user-info').classList.remove('hidden');
-                document.getElementById('nav-menu-btn').classList.remove('hidden'); // Show menu icon when logged in
-
-                // Sync Presence
-                setupPresence(user.uid);
-
-                // Fetch or setup account record
-                const userRef = ref(db, `users/${user.uid}`);
-                const snapshot = await get(userRef);
-
-                if (!snapshot.exists()) {
-                    // Generate guaranteed 8-digit friend code and save to RTDB
-                    const code = generate8DigitCode();
-                    currentUserData = {
-                        uid: user.uid,
-                        code: code,
-                        displayName: '',
-                        privacyAgreed: false,
-                        joinedAt: Date.now()
-                    };
-                    await set(userRef, currentUserData);
-                } else {
-                    currentUserData = snapshot.val();
-                    // Fallback check if code was ever missing or empty
-                    if (!currentUserData.code || currentUserData.code.length !== 8) {
-                        const newCode = generate8DigitCode();
-                        currentUserData.code = newCode;
-                        await update(userRef, { code: newCode });
-                    }
-                }
-
-                // Check for duplicate code across accounts in RTDB
-                await verifyAndHandleDuplicateCode(user.uid, currentUserData.code);
-
-                // UI Workflows: Unskippable Privacy Drawer & Profile Setup Drawer
-                evaluateUserStepDrawers();
-
-                // Update Sidebar Code, UID UI & Conversations
-                document.getElementById('sidebar-user-code').innerText = currentUserData.code;
-                document.getElementById('sidebar-user-uid').innerText = user.uid;
-                listenToConversations(user.uid);
+            document.getElementById(`screen-${screenId}`).classList.remove('hidden');
+            
+            // Toggle Main Nav visibility
+            if(['loading', 'profile-setup', 'privacy-policy'].includes(screenId)) {
+                document.getElementById('main-nav').classList.add('hidden');
             } else {
-                // User logged out / no session
-                document.getElementById('auth-view').classList.remove('hidden');
-                document.getElementById('main-dashboard').classList.add('hidden');
-                document.getElementById('nav-user-info').classList.add('hidden');
-                document.getElementById('nav-menu-btn').classList.add('hidden'); // Hide menu icon on auth page
-
-                // Ensure sidebar is closed when logged out
-                document.getElementById('sidebar').classList.remove('active');
-                document.getElementById('sidebar-overlay').classList.remove('active');
-            }
-        });
-
-        // --- DUPLICATE CODE CHECKER & COMPULSORY POPUP ---
-        async function verifyAndHandleDuplicateCode(uid, currentCode) {
-            const usersRef = ref(db, 'users');
-            const codeQuery = query(usersRef, orderByChild('code'), equalTo(currentCode));
-            const snapshot = await get(codeQuery);
-
-            let matches = [];
-            snapshot.forEach((child) => {
-                matches.push(child.key);
-            });
-
-            if (matches.length > 1) {
-                // Duplicate found! Display compulsory unskippable modal
-                document.getElementById('code-conflict-modal').classList.remove('hidden');
-            }
-        }
-
-        window.resolveCodeConflict = async () => {
-            if (!auth.currentUser) return;
-            // Generate guaranteed unique code
-            let uniqueFound = false;
-            let newCode = "";
-
-            while (!uniqueFound) {
-                newCode = generate8DigitCode();
-                const q = query(ref(db, 'users'), orderByChild('code'), equalTo(newCode));
-                const snap = await get(q);
-                if (!snap.exists()) {
-                    uniqueFound = true;
-                }
+                document.getElementById('main-nav').classList.remove('hidden');
             }
 
-            await update(ref(db, `users/${auth.currentUser.uid}`), { code: newCode });
-            currentUserData.code = newCode;
-            document.getElementById('sidebar-user-code').innerText = newCode;
-            document.getElementById('code-conflict-modal').classList.add('hidden');
-            showToast("New unique friend code assigned!");
+            // Close sidebar if open
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebar-overlay').classList.remove('active');
+
+            if(screenId === 'dashboard') loadUserChatsList();
+            if(screenId === 'profile') populateProfileView();
         };
 
-        // --- STEP DRAWERS ENGINE ---
-        function evaluateUserStepDrawers() {
-            if (!currentUserData.privacyAgreed) {
-                document.getElementById('privacy-drawer-overlay').classList.remove('hidden');
-                document.getElementById('profile-drawer-overlay').classList.add('hidden');
-            } else if (!currentUserData.displayName || currentUserData.displayName.trim() === '') {
-                document.getElementById('privacy-drawer-overlay').classList.add('hidden');
-                document.getElementById('profile-drawer-overlay').classList.remove('hidden');
-            } else {
-                document.getElementById('privacy-drawer-overlay').classList.add('hidden');
-                document.getElementById('profile-drawer-overlay').classList.add('hidden');
-                document.getElementById('nav-display-name').innerText = currentUserData.displayName;
-            }
-        }
-
-        window.togglePrivacyContinueBtn = () => {
-            const checked = document.getElementById('privacy-checkbox').checked;
-            document.getElementById('privacy-continue-btn').disabled = !checked;
-        };
-
-        window.completePrivacyDrawer = async () => {
-            if (!auth.currentUser) return;
-            await update(ref(db, `users/${auth.currentUser.uid}`), { privacyAgreed: true });
-            currentUserData.privacyAgreed = true;
-            evaluateUserStepDrawers();
-        };
-
-        window.saveProfileDetails = async () => {
-            const nameInput = document.getElementById('input-display-name').value.trim();
-            if (!nameInput) return showToast("Please enter a display name", "error");
-
-            await update(ref(db, `users/${auth.currentUser.uid}`), { displayName: nameInput });
-            currentUserData.displayName = nameInput;
-            showToast("Profile details saved!");
-            evaluateUserStepDrawers();
-        };
-
-        // --- PRESENCE & REALTIME STATUS ---
-        function setupPresence(uid) {
-            const userStatusRef = ref(db, `users/${uid}/presence`);
-            const connectedRef = ref(db, '.info/connected');
-
-            onValue(connectedRef, (snap) => {
-                if (snap.val() === true) {
-                    onDisconnect(userStatusRef).set({
-                        state: 'offline',
-                        lastSeen: Date.now()
-                    });
-                    set(userStatusRef, {
-                        state: 'online',
-                        lastSeen: Date.now()
-                    });
-                }
-            });
-        }
-
-        // --- SIDEBAR WORKFLOWS ---
         window.toggleSidebar = () => {
-            // Block sidebar from opening if user is on auth view or not logged in
-            if (!auth.currentUser) return;
-
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('sidebar-overlay').classList.toggle('active');
         };
 
-        window.openEnterCodeDrawer = () => {
-            toggleSidebar();
-            document.getElementById('enter-code-overlay').classList.remove('hidden');
-        };
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
-        window.closeEnterCodeDrawer = () => {
-            document.getElementById('enter-code-overlay').classList.add('hidden');
-            document.getElementById('target-code-input').value = '';
-        };
-
-        window.initiateChatFromCode = async () => {
-            const targetInput = document.getElementById('target-code-input').value.trim();
-            if (!targetInput) return showToast("Please enter an 8-digit code or UID", "error");
-            if (targetInput === currentUserData.code || targetInput === auth.currentUser.uid) {
-                return showToast("You cannot enter your own code or UID", "error");
+        // --- CLOUDINARY UPLOAD PIPELINE ---
+        async function uploadToCloudinary(file, maxMbAllowed = 1) {
+            if (file.size > maxMbAllowed * 1024 * 1024) {
+                throw new Error(`File size exceeds limit of ${maxMbAllowed} MB.`);
             }
 
-            let peerUid = null;
-            let peerData = null;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-            // Check if input is 8-digit code
-            if (targetInput.length === 8 && /^\d{8}$/.test(targetInput)) {
-                const q = query(ref(db, 'users'), orderByChild('code'), equalTo(targetInput));
-                const snap = await get(q);
-                if (snap.exists()) {
-                    snap.forEach((child) => {
-                        peerUid = child.key;
-                        peerData = child.val();
-                    });
-                }
-            }
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+                method: 'POST',
+                body: formData
+            });
 
-            // If not found by 8-digit code, try searching by UID directly
-            if (!peerUid) {
-                const userSnap = await get(ref(db, `users/${targetInput}`));
-                if (userSnap.exists()) {
-                    peerUid = userSnap.key;
-                    peerData = userSnap.val();
-                }
-            }
+            if (!res.ok) throw new Error("Cloudinary media upload failed.");
+            const data = await res.json();
+            return data.secure_url;
+        }
 
-            if (!peerUid || !peerData) {
-                return showToast("No user found with that 8-digit code or UID", "error");
-            }
-
-            closeEnterCodeDrawer();
-            openChatWindow(peerUid, peerData);
-        };
-
-        // --- CONVERSATION & FAV MANAGEMENT ---
-        function listenToConversations(uid) {
-            onValue(ref(db, `userConversations/${uid}`), async (snapshot) => {
-                const myConvosList = document.getElementById('my-convos-list');
-                const favConvosList = document.getElementById('fav-convos-list');
-                myConvosList.innerHTML = '';
-                favConvosList.innerHTML = '';
-
+        // --- ANONYMOUS 8-DIGIT ID GENERATOR ---
+        async function generateUniqueAnonymousId() {
+            let unique = false;
+            let code = "";
+            while (!unique) {
+                code = Math.floor(10000000 + Math.random() * 90000000).toString();
+                const snapshot = await get(ref(db, `anonymousIds/${code}`));
                 if (!snapshot.exists()) {
-                    myConvosList.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px;">No active conversations</p>';
-                    favConvosList.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px;">No favorites yet</p>';
-                    return;
+                    unique = true;
                 }
-
-                let hasMy = false;
-                let hasFav = false;
-
-                const convos = snapshot.val();
-                for (let peerUid in convos) {
-                    const convoData = convos[peerUid];
-                    const peerSnap = await get(ref(db, `users/${peerUid}`));
-                    const peer = peerSnap.val() || { displayName: 'Unknown', code: '--------' };
-
-                    const item = document.createElement('div');
-                    item.className = 'convo-item';
-                    item.innerHTML = `
-                        <div class="convo-info" onclick="openChatFromSidebar('${peerUid}')">
-                            <span class="convo-name">${escapeHtml(peer.displayName || 'Anonymous')}</span>
-                            <span class="convo-code">Code: ${peer.code || '--------'}</span>
-                        </div>
-                        <div class="convo-actions">
-                            <button class="convo-action-btn" onclick="toggleFavoriteConvo('${peerUid}', ${!convoData.favorite})" title="Toggle Favorite">
-                                <i class="${convoData.favorite ? 'fas fa-star' : 'far fa-star'}" style="color:${convoData.favorite ? 'var(--warning)' : ''}"></i>
-                            </button>
-                            <button class="convo-action-btn" onclick="deleteConvo('${peerUid}')" title="Delete Conversation">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-
-                    if (convoData.favorite) {
-                        favConvosList.appendChild(item);
-                        hasFav = true;
-                    } else {
-                        myConvosList.appendChild(item);
-                        hasMy = true;
-                    }
-                }
-
-                if (!hasMy) myConvosList.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px;">No active conversations</p>';
-                if (!hasFav) favConvosList.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px;">No favorites yet</p>';
-            });
+            }
+            return code;
         }
 
-        window.openChatFromSidebar = async (peerUid) => {
-            toggleSidebar();
-            const peerSnap = await get(ref(db, `users/${peerUid}`));
-            if (peerSnap.exists()) {
-                openChatWindow(peerUid, peerSnap.val());
-            }
-        };
-
-        window.toggleFavoriteConvo = async (peerUid, favStatus) => {
-            if (!auth.currentUser) return;
-            await update(ref(db, `userConversations/${auth.currentUser.uid}/${peerUid}`), { favorite: favStatus });
-        };
-
-        window.deleteConvo = async (peerUid) => {
-            if (confirm("Deleting this conversation requires re-entering the 8-digit friend code or UID to visit it again. Continue?")) {
-                await remove(ref(db, `userConversations/${auth.currentUser.uid}/${peerUid}`));
-                showToast("Conversation deleted");
-            }
-        };
-
-        // --- DIRECT CHAT WINDOW ENGINE ---
-        async function openChatWindow(peerUid, peerData) {
-            activeChatPeerUid = peerUid;
-            activeChatPeerCode = peerData.code;
-            activeChatRoomId = [auth.currentUser.uid, peerUid].sort().join('_');
-
-            // Save conversation under both user conversations nodes
-            await set(ref(db, `userConversations/${auth.currentUser.uid}/${peerUid}/lastActive`), Date.now());
-            await set(ref(db, `userConversations/${peerUid}/${auth.currentUser.uid}/lastActive`), Date.now());
-
-            document.getElementById('chat-peer-name').innerText = peerData.displayName || 'Anonymous User';
-            document.getElementById('chat-drawer-overlay').classList.remove('hidden');
-
-            // Listen to peer presence
-            listenToPeerPresence(peerUid);
-
-            // Listen to messages
-            listenToMessages(activeChatRoomId);
-
-            // Listen to typing indicator
-            listenToTyping(activeChatRoomId, peerUid);
-
-            // Check block status
-            checkBlockState();
-        }
-
-        window.closeChatDrawer = () => {
-            document.getElementById('chat-drawer-overlay').classList.add('hidden');
-            activeChatPeerUid = null;
-            activeChatRoomId = null;
-        };
-
-        function listenToPeerPresence(peerUid) {
-            onValue(ref(db, `users/${peerUid}/presence`), (snap) => {
-                const dot = document.getElementById('chat-peer-status-dot');
-                const text = document.getElementById('chat-peer-status-text');
-                
-                if (!snap.exists()) {
-                    dot.className = 'status-dot offline';
-                    text.innerText = 'Offline';
-                    return;
+        // --- AUTHENTICATION & INITIALIZATION FLOW ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                monitorPresence(user.uid);
+                await verifyUserProfileState(user.uid);
+            } else {
+                try {
+                    await signInAnonymously(auth);
+                } catch (err) {
+                    showToast("Failed to initialize anonymous authentication session.", "error");
                 }
+            }
+        });
 
-                const presence = snap.val();
-                if (presence.state === 'online') {
-                    dot.className = 'status-dot online';
-                    text.innerText = 'Online';
+        async function verifyUserProfileState(uid) {
+            try {
+                const snapshot = await get(ref(db, `users/${uid}`));
+                if (!snapshot.exists() || !snapshot.val().displayName) {
+                    navigateTo('profile-setup');
                 } else {
-                    dot.className = 'status-dot offline';
-                    const timeStr = presence.lastSeen ? new Date(presence.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown';
-                    text.innerText = `Last seen ${timeStr}`;
+                    currentUserProfile = snapshot.val();
+                    if (!currentUserProfile.privacyAccepted) {
+                        navigateTo('privacy-policy');
+                    } else {
+                        updateSidebarAndNav();
+                        navigateTo('dashboard');
+                    }
+                }
+            } catch (err) {
+                showToast("Database connectivity error.", "error");
+            }
+        }
+
+        function updateSidebarAndNav() {
+            if (!currentUserProfile) return;
+            document.getElementById('sb-name').textContent = currentUserProfile.displayName;
+            document.getElementById('sb-id').textContent = `ID: ${currentUserProfile.anonymousId}`;
+            document.getElementById('sb-avatar').src = currentUserProfile.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUserProfile.anonymousId}`;
+            
+            const navAvatar = document.getElementById('nav-user-avatar');
+            navAvatar.src = currentUserProfile.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUserProfile.anonymousId}`;
+            navAvatar.classList.remove('hidden');
+        }
+
+        // --- PRESENCE MONITORING ---
+        function monitorPresence(uid) {
+            const userStatusRef = ref(db, `users/${uid}`);
+            const connectedRef = ref(db, '.info/connected');
+
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    onDisconnect(userStatusRef).update({ online: false, lastSeen: serverTimestamp() });
+                    update(userStatusRef, { online: true });
                 }
             });
         }
 
-        function listenToMessages(roomId) {
-            onValue(ref(db, `chats/${roomId}/messages`), async (snapshot) => {
-                const body = document.getElementById('chat-messages-body');
-                body.innerHTML = '';
+        // --- PROFILE CREATION & UPDATES ---
+        let selectedProfileImageFile = null;
+        window.previewProfileImage = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("Profile picture must be under 2 MB.", "error");
+                return;
+            }
+            selectedProfileImageFile = file;
+            document.getElementById('setup-avatar-preview').src = URL.createObjectURL(file);
+        };
 
-                if (!snapshot.exists()) return;
+        window.saveProfileProcess = async () => {
+            const name = document.getElementById('setup-name').value.trim();
+            const bio = document.getElementById('setup-bio').value.trim();
+            const btn = document.getElementById('btn-save-profile');
 
-                // Check block status
-                const blockedByPeer = (await get(ref(db, `blocks/${activeChatPeerUid}/${auth.currentUser.uid}`))).exists();
-                if (blockedByPeer) {
-                    body.innerHTML = '<p style="text-align:center; font-size:0.8rem; color:var(--text-muted); padding:20px;">Messages cannot be sent or received at this time.</p>';
-                    return;
+            if (name.length < 2 || name.length > 24) {
+                return showToast("Display name must be between 2 and 24 characters.", "error");
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Saving profile...";
+
+            try {
+                let photoURL = `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`;
+                if (selectedProfileImageFile) {
+                    photoURL = await uploadToCloudinary(selectedProfileImageFile, 2);
                 }
 
-                snapshot.forEach((child) => {
-                    const msg = child.val();
-                    const isSent = msg.senderUid === auth.currentUser.uid;
+                const anonId = await generateUniqueAnonymousId();
 
-                    const bubble = document.createElement('div');
-                    bubble.className = `chat-bubble ${isSent ? 'sent' : 'received'}`;
+                const profileData = {
+                    anonymousId: anonId,
+                    displayName: name,
+                    bio: bio,
+                    photoURL: photoURL,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    online: true,
+                    lastSeen: serverTimestamp(),
+                    privacyAccepted: false
+                };
 
-                    let contentHtml = '';
-                    if (msg.type === 'text') {
-                        contentHtml = `<div>${escapeHtml(msg.text)}</div>`;
-                    } else if (msg.type === 'image') {
-                        contentHtml = `<img src="${msg.mediaUrl}" class="chat-img" onclick="window.open('${msg.mediaUrl}', '_blank')">`;
-                    } else if (msg.type === 'audio') {
-                        contentHtml = `<audio controls src="${msg.mediaUrl}" class="chat-audio"></audio>`;
+                await set(ref(db, `users/${currentUser.uid}`), profileData);
+                await set(ref(db, `anonymousIds/${anonId}`), currentUser.uid);
+
+                currentUserProfile = profileData;
+                showToast("Profile saved successfully!");
+                navigateTo('privacy-policy');
+            } catch (err) {
+                showToast(err.message || "Failed to save profile.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Continue to Quickk!";
+            }
+        };
+
+        // --- PRIVACY POLICY ENFORCEMENT ---
+        window.checkPolicyScroll = () => {
+            const box = document.getElementById('policy-scroll-box');
+            if (box.scrollTop + box.clientHeight >= box.scrollHeight - 20) {
+                document.getElementById('chk-accept-policy').disabled = false;
+            }
+        };
+
+        window.togglePolicyBtn = () => {
+            const chk = document.getElementById('chk-accept-policy');
+            document.getElementById('btn-accept-policy').disabled = !chk.checked;
+        };
+
+        window.acceptPrivacyPolicy = async () => {
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    privacyAccepted: true,
+                    privacyPolicyVersion: "1.0",
+                    privacyAcceptedAt: serverTimestamp()
+                });
+                currentUserProfile.privacyAccepted = true;
+                updateSidebarAndNav();
+                showToast("Welcome to Quickk!");
+                navigateTo('dashboard');
+            } catch (err) {
+                showToast("Failed to accept privacy policy.", "error");
+            }
+        };
+
+        // --- USER SEARCH & DIRECT CHAT INITIALIZATION ---
+        window.searchUserById = async () => {
+            const idInput = document.getElementById('search-id-input').value.trim();
+            if (!/^\d{8}$/.test(idInput)) {
+                return showToast("Please enter a valid 8-digit Quickk! ID.", "error");
+            }
+
+            try {
+                const snap = await get(ref(db, `anonymousIds/${idInput}`));
+                if (!snap.exists()) {
+                    document.getElementById('search-result-card').classList.add('hidden');
+                    return showToast("No Quickk! user found with this ID.", "warning");
+                }
+
+                const targetUid = snap.val();
+                if (targetUid === currentUser.uid) {
+                    return showToast("That is your own Quickk! ID.", "warning");
+                }
+
+                const userSnap = await get(ref(db, `users/${targetUid}`));
+                const targetUser = userSnap.val();
+
+                document.getElementById('sr-avatar').src = targetUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${idInput}`;
+                document.getElementById('sr-name').textContent = targetUser.displayName;
+                document.getElementById('sr-bio').textContent = targetUser.bio || "No bio provided.";
+                document.getElementById('sr-id').textContent = `Quickk! ID: ${targetUser.anonymousId}`;
+
+                document.getElementById('sr-start-btn').onclick = () => openDirectConversation(targetUid, targetUser);
+                document.getElementById('sr-block-btn').onclick = () => blockUser(targetUid);
+
+                document.getElementById('search-result-card').classList.remove('hidden');
+            } catch (err) {
+                showToast("Error searching for user.", "error");
+            }
+        };
+
+        async function openDirectConversation(targetUid, targetUser) {
+            const chatId = [currentUser.uid, targetUid].sort().join("_");
+            
+            // Register Chat Metadata if non-existent
+            const chatRef = ref(db, `chats/${chatId}`);
+            const chatSnap = await get(chatRef);
+
+            if (!chatSnap.exists()) {
+                await set(chatRef, {
+                    type: "direct",
+                    createdAt: serverTimestamp(),
+                    createdBy: currentUser.uid,
+                    members: {
+                        [currentUser.uid]: true,
+                        [targetUid]: true
                     }
-
-                    const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    bubble.innerHTML = `${contentHtml}<span class="chat-time">${timeStr}</span>`;
-                    body.appendChild(bubble);
                 });
 
-                body.scrollTop = body.scrollHeight;
+                // Update Chat Indexes for both users
+                await set(ref(db, `userChats/${currentUser.uid}/${chatId}`), {
+                    otherUid: targetUid,
+                    unreadCount: 0
+                });
+                await set(ref(db, `userChats/${targetUid}/${chatId}`), {
+                    otherUid: currentUser.uid,
+                    unreadCount: 0
+                });
+            }
+
+            openChatWindow(chatId, targetUid, targetUser);
+        }
+
+        // --- DASHBOARD CHAT LISTING ---
+        function loadUserChatsList() {
+            const container = document.getElementById('chat-list-container');
+            const userChatsRef = ref(db, `userChats/${currentUser.uid}`);
+
+            onValue(userChatsRef, async (snap) => {
+                container.innerHTML = "";
+                if (!snap.exists()) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <h3>No chats yet</h3>
+                            <p style="font-size: 0.85rem; margin-top: 5px;">Find an anonymous user using their 8-digit ID to get started.</p>
+                            <button class="btn btn-primary" style="margin-top: 20px; width: auto;" onclick="navigateTo('find')">Start a Chat</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const chatsData = snap.val();
+                for (let chatId in chatsData) {
+                    const chatItem = chatsData[chatId];
+                    const targetUid = chatItem.otherUid;
+
+                    const userSnap = await get(ref(db, `users/${targetUid}`));
+                    const targetUser = userSnap.val() || { displayName: "Anonymous User", photoURL: "" };
+
+                    const card = document.createElement('div');
+                    card.className = "chat-list-item";
+                    card.onclick = () => openChatWindow(chatId, targetUid, targetUser);
+
+                    let lastMsgText = chatItem.lastMessage || "No messages yet";
+                    if (chatItem.lastMessageType === 'image') lastMsgText = "📷 Image";
+                    if (chatItem.lastMessageType === 'voice') lastMsgText = "🎤 Voice note";
+
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="${targetUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUid}`}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <h4 style="font-size: 0.95rem;">${escapeHtml(targetUser.displayName)}</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(lastMsgText)}</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">${chatItem.lastMessageTimestamp ? formatTimestamp(chatItem.lastMessageTimestamp) : ''}</span>
+                            ${chatItem.unreadCount > 0 ? `<div class="unread-badge" style="margin-top: 5px;">${chatItem.unreadCount}</div>` : ''}
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
             });
         }
 
-        function escapeHtml(str) {
-            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
-        }
+        // --- FULL-SCREEN CHAT INTERFACE & REALTIME MESSAGING ---
+        function openChatWindow(chatId, targetUid, targetUser) {
+            activeChatId = chatId;
+            activeChatTargetUid = targetUid;
 
-        // --- TYPING INDICATORS ---
-        window.handleTypingEvent = () => {
-            if (!activeChatRoomId) return;
-            set(ref(db, `chats/${activeChatRoomId}/typing/${auth.currentUser.uid}`), true);
+            document.getElementById('chat-target-name').textContent = targetUser.displayName;
+            document.getElementById('chat-target-avatar').src = targetUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUid}`;
+            document.getElementById('chat-window').classList.remove('hidden');
 
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                set(ref(db, `chats/${activeChatRoomId}/typing/${auth.currentUser.uid}`), false);
-            }, 2000);
-        };
+            // Reset unread counter
+            set(ref(db, `userChats/${currentUser.uid}/${chatId}/unreadCount`), 0);
 
-        function listenToTyping(roomId, peerUid) {
-            onValue(ref(db, `chats/${roomId}/typing/${peerUid}`), (snap) => {
-                const isTyping = snap.val();
-                const indicator = document.getElementById('typing-indicator');
-                if (isTyping) {
+            // Presence listener for recipient
+            onValue(ref(db, `users/${targetUid}`), (snap) => {
+                const data = snap.val();
+                const presenceEl = document.getElementById('chat-target-presence');
+                if (data && data.online) {
+                    presenceEl.innerHTML = `<span class="status-dot online"></span> Online`;
+                } else {
+                    presenceEl.innerHTML = `<span class="status-dot offline"></span> Last seen recently`;
+                }
+            });
+
+            // Listen for typing indicator
+            onValue(ref(db, `chats/${chatId}/typing/${targetUid}`), (snap) => {
+                const indicator = document.getElementById('chat-typing-indicator');
+                if (snap.val() === true) {
                     indicator.classList.remove('hidden');
                 } else {
                     indicator.classList.add('hidden');
                 }
             });
+
+            // Listen for Messages
+            const messagesRef = ref(db, `chats/${chatId}/messages`);
+            if (activeChatListener) activeChatListener();
+
+            activeChatListener = onValue(messagesRef, (snap) => {
+                const container = document.getElementById('chat-messages-container');
+                container.innerHTML = "";
+                if (snap.exists()) {
+                    snap.forEach((child) => {
+                        const msg = child.val();
+                        renderMessageBubble(msg);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
         }
 
-        // --- BLOCK / UNBLOCK FEATURE ---
-        async function checkBlockState() {
-            const myBlockSnap = await get(ref(db, `blocks/${auth.currentUser.uid}/${activeChatPeerUid}`));
-            const btn = document.getElementById('block-btn');
-            if (myBlockSnap.exists()) {
-                btn.style.color = 'var(--error)';
-            } else {
-                btn.style.color = 'var(--text-muted)';
-            }
-        }
-
-        window.toggleBlockUser = async () => {
-            const blockRef = ref(db, `blocks/${auth.currentUser.uid}/${activeChatPeerUid}`);
-            const snap = await get(blockRef);
-
-            if (snap.exists()) {
-                await remove(blockRef);
-                showToast("User unblocked");
-            } else {
-                await set(blockRef, true);
-                showToast("User blocked");
-            }
-            checkBlockState();
+        window.closeChatWindow = () => {
+            document.getElementById('chat-window').classList.add('hidden');
+            activeChatId = null;
+            activeChatTargetUid = null;
         };
 
-        // --- MESSAGING ACTIONS ---
+        function renderMessageBubble(msg) {
+            const container = document.getElementById('chat-messages-container');
+            const isSelf = msg.senderUid === currentUser.uid;
+
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${isSelf ? 'msg-self' : 'msg-other'}`;
+
+            let bodyContent = "";
+            if (msg.type === 'text') {
+                bodyContent = `<p>${escapeHtml(msg.text)}</p>`;
+            } else if (msg.type === 'image') {
+                bodyContent = `<img src="${msg.mediaURL}" class="msg-image" onclick="window.open('${msg.mediaURL}', '_blank')">`;
+            } else if (msg.type === 'voice') {
+                bodyContent = `
+                    <div class="voice-player">
+                        <button class="voice-btn" onclick="playAudio('${msg.mediaURL}', this)"><i class="fas fa-play"></i></button>
+                        <span style="font-size: 0.8rem;">Voice Note (${msg.duration || '00:00'})</span>
+                    </div>
+                `;
+            }
+
+            bubble.innerHTML = `
+                ${bodyContent}
+                <span class="msg-time">${formatTimestamp(msg.timestamp)}</span>
+            `;
+            container.appendChild(bubble);
+        }
+
+        window.playAudio = (url, btn) => {
+            const audio = new Audio(url);
+            btn.innerHTML = `<i class="fas fa-pause"></i>`;
+            audio.play();
+            audio.onended = () => {
+                btn.innerHTML = `<i class="fas fa-play"></i>`;
+            };
+        };
+
+        // --- SEND TEXT MESSAGE ---
         window.sendTextMessage = async () => {
             const input = document.getElementById('chat-text-input');
             const text = input.value.trim();
-            if (!text || !activeChatRoomId) return;
+            if (!text || !activeChatId) return;
 
-            // Check if blocked
-            const isBlocked = (await get(ref(db, `blocks/${auth.currentUser.uid}/${activeChatPeerUid}`))).exists() ||
-                              (await get(ref(db, `blocks/${activeChatPeerUid}/${auth.currentUser.uid}`))).exists();
+            input.value = "";
+            clearTypingState();
 
-            if (isBlocked) {
-                return showToast("Cannot send message. Block active.", "error");
-            }
-
-            const msgRef = push(ref(db, `chats/${activeChatRoomId}/messages`));
-            await set(msgRef, {
-                senderUid: auth.currentUser.uid,
-                type: 'text',
+            const msgData = {
+                senderUid: currentUser.uid,
+                senderName: currentUserProfile.displayName,
+                senderPhoto: currentUserProfile.photoURL,
+                type: "text",
                 text: text,
-                timestamp: Date.now()
-            });
+                timestamp: serverTimestamp()
+            };
 
-            input.value = '';
-            set(ref(db, `chats/${activeChatRoomId}/typing/${auth.currentUser.uid}`), false);
+            await push(ref(db, `chats/${activeChatId}/messages`), msgData);
+            updateChatMetadata(text, 'text');
         };
 
-        // --- IMAGE UPLOAD (<3MB) via Cloudinary ---
-        window.handleImageSelected = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        async function updateChatMetadata(lastText, type) {
+            const meta = {
+                lastMessage: lastText,
+                lastMessageType: type,
+                lastMessageTimestamp: serverTimestamp()
+            };
 
-            if (file.size > 3 * 1024 * 1024) {
-                return showToast("Image size must be under 3MB", "error");
+            await update(ref(db, `chats/${activeChatId}/metadata`), meta);
+            await update(ref(db, `userChats/${currentUser.uid}/${activeChatId}`), meta);
+
+            // Increment unread count for recipient
+            const targetChatRef = ref(db, `userChats/${activeChatTargetUid}/${activeChatId}`);
+            const targetSnap = await get(targetChatRef);
+            let unread = 1;
+            if (targetSnap.exists() && targetSnap.val().unreadCount) {
+                unread = targetSnap.val().unreadCount + 1;
             }
+            await update(targetChatRef, { ...meta, unreadCount: unread });
+        }
 
-            showToast("Uploading image...", "success");
+        // --- TYPING INDICATOR HANDLER ---
+        window.handleTypingEvent = () => {
+            if (!activeChatId) return;
+            set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), true);
 
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", CLOUDINARY_PRESET);
-
-            try {
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await res.json();
-
-                if (data.secure_url) {
-                    const msgRef = push(ref(db, `chats/${activeChatRoomId}/messages`));
-                    await set(msgRef, {
-                        senderUid: auth.currentUser.uid,
-                        type: 'image',
-                        mediaUrl: data.secure_url,
-                        timestamp: Date.now()
-                    });
-                    showToast("Image sent!");
-                }
-            } catch (err) {
-                showToast("Image upload failed: " + err.message, "error");
-            }
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(clearTypingState, 2000);
         };
 
-        // --- VOICE NOTES RECORDING via Cloudinary ---
-        window.toggleAudioRecording = async () => {
-            const btn = document.getElementById('record-audio-btn');
-
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-
-                    mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        uploadAndSendAudio(audioBlob);
-                    };
-
-                    mediaRecorder.start();
-                    isRecording = true;
-                    btn.classList.add('recording');
-                    showToast("Recording audio...", "success");
-                } catch (err) {
-                    showToast("Microphone access denied: " + err.message, "error");
-                }
-            } else {
-                mediaRecorder.stop();
-                isRecording = false;
-                btn.classList.remove('recording');
-            }
-        };
-
-        async function uploadAndSendAudio(blob) {
-            showToast("Uploading voice note...", "success");
-            const formData = new FormData();
-            formData.append("file", blob);
-            formData.append("upload_preset", CLOUDINARY_PRESET);
-
-            try {
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`, {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await res.json();
-
-                if (data.secure_url) {
-                    const msgRef = push(ref(db, `chats/${activeChatRoomId}/messages`));
-                    await set(msgRef, {
-                        senderUid: auth.currentUser.uid,
-                        type: 'audio',
-                        mediaUrl: data.secure_url,
-                        timestamp: Date.now()
-                    });
-                    showToast("Voice note sent!");
-                }
-            } catch (err) {
-                showToast("Voice note failed: " + err.message, "error");
+        function clearTypingState() {
+            if (activeChatId && currentUser) {
+                set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), false);
             }
         }
 
-        // --- LOGOUT & AUTO DELETE DATA ---
-        window.logoutAccount = async () => {
-            if (confirm("Logging out will automatically delete your anonymous account and profile data permanently. Continue?")) {
-                const user = auth.currentUser;
-                if (user) {
-                    const uid = user.uid;
-                    // Remove database records
-                    await remove(ref(db, `users/${uid}`));
-                    await remove(ref(db, `userConversations/${uid}`));
+        // --- IMAGE MESSAGE HANDLER ---
+        window.handleChatImageUpload = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 1 * 1024 * 1024) {
+                return showToast("Image must be under 1 MB.", "error");
+            }
+            pendingImageFile = file;
+            document.getElementById('image-send-preview').src = URL.createObjectURL(file);
+            document.getElementById('image-size-label').textContent = `Size: ${(file.size / 1024).toFixed(1)} KB`;
+            document.getElementById('modal-image-preview').classList.remove('hidden');
+        };
 
-                    // Delete auth account
-                    try {
-                        await deleteUser(user);
-                    } catch (e) {
-                        await signOut(auth);
-                    }
-                }
-                window.location.reload();
+        window.cancelImageSend = () => {
+            pendingImageFile = null;
+            closeModal('modal-image-preview');
+        };
+
+        window.confirmSendImage = async () => {
+            if (!pendingImageFile) return;
+            const btn = document.getElementById('btn-confirm-image-send');
+            btn.disabled = true;
+            btn.textContent = "Uploading...";
+
+            try {
+                const url = await uploadToCloudinary(pendingImageFile, 1);
+                const msgData = {
+                    senderUid: currentUser.uid,
+                    senderName: currentUserProfile.displayName,
+                    senderPhoto: currentUserProfile.photoURL,
+                    type: "image",
+                    mediaURL: url,
+                    timestamp: serverTimestamp()
+                };
+
+                await push(ref(db, `chats/${activeChatId}/messages`), msgData);
+                await updateChatMetadata("📷 Image", "image");
+                closeModal('modal-image-preview');
+                showToast("Image sent!");
+            } catch (err) {
+                showToast("Image upload failed.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Upload & Send";
+                pendingImageFile = null;
             }
         };
 
-        // --- BUG REPORT REDIRECT ---
-        window.redirectToSupport = () => {
-            window.location.href = "https://fast-bot-official.github.io/FluxionarySupport//";
+        // --- VOICE NOTE RECORDER HANDLER ---
+        window.toggleVoiceRecording = async () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                
+                // Dynamic MIME check
+                let mimeType = 'audio/webm';
+                if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+                if (MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    voiceBlob = new Blob(audioChunks, { type: mimeType });
+                    clearInterval(voiceTimerInterval);
+                    document.getElementById('voice-audio-preview').src = URL.createObjectURL(voiceBlob);
+                    document.getElementById('modal-voice-preview').classList.remove('hidden');
+                    
+                    // Stop tracks
+                    stream.getTracks().forEach(t => t.stop());
+                };
+
+                mediaRecorder.start();
+                voiceSeconds = 0;
+                document.getElementById('voice-record-btn').style.color = "var(--error)";
+                showToast("Recording started...", "info");
+
+                voiceTimerInterval = setInterval(() => {
+                    voiceSeconds++;
+                    document.getElementById('voice-duration-label').textContent = formatDuration(voiceSeconds);
+                }, 1000);
+
+            } catch (err) {
+                showToast("Microphone access denied or unsupported.", "error");
+            }
         };
+
+        window.cancelVoiceNote = () => {
+            voiceBlob = null;
+            document.getElementById('voice-record-btn').style.color = "var(--text-muted)";
+            closeModal('modal-voice-preview');
+        };
+
+        window.uploadAndSendVoiceNote = async () => {
+            if (!voiceBlob) return;
+            if (voiceBlob.size > 1 * 1024 * 1024) {
+                return showToast("Voice note must be under 1 MB.", "error");
+            }
+
+            showToast("Sending voice note...", "info");
+            try {
+                const audioFile = new File([voiceBlob], "voicenote.webm", { type: voiceBlob.type });
+                const url = await uploadToCloudinary(audioFile, 1);
+
+                const msgData = {
+                    senderUid: currentUser.uid,
+                    senderName: currentUserProfile.displayName,
+                    senderPhoto: currentUserProfile.photoURL,
+                    type: "voice",
+                    mediaURL: url,
+                    duration: formatDuration(voiceSeconds),
+                    timestamp: serverTimestamp()
+                };
+
+                await push(ref(db, `chats/${activeChatId}/messages`), msgData);
+                await updateChatMetadata("🎤 Voice note", "voice");
+                closeModal('modal-voice-preview');
+                document.getElementById('voice-record-btn').style.color = "var(--text-muted)";
+                showToast("Voice note sent!");
+            } catch (err) {
+                showToast("Voice note upload failed.", "error");
+            }
+        };
+
+        // --- BLOCK & REPORT FUNCTIONS ---
+        window.blockUser = async (targetUid) => {
+            if (confirm("Are you sure you want to block this user?")) {
+                await set(ref(db, `blocks/${currentUser.uid}/${targetUid}`), true);
+                showToast("User blocked successfully.", "success");
+            }
+        };
+
+        window.submitUserReport = async () => {
+            const category = document.getElementById('report-category').value;
+            const desc = document.getElementById('report-description').value.trim();
+
+            const reportRef = push(ref(db, 'reports'));
+            await set(reportRef, {
+                reporterUid: currentUser.uid,
+                targetUid: activeChatTargetUid,
+                chatId: activeChatId,
+                category: category,
+                description: desc,
+                timestamp: serverTimestamp()
+            });
+
+            closeModal('modal-report');
+            showToast("Report submitted to moderation.");
+        };
+
+        window.toggleChatMenu = () => {
+            const action = prompt("Chat Menu Options:\n1. View Profile\n2. Report User\n3. Block User\n\nEnter number (1-3):");
+            if (action === '2') {
+                document.getElementById('modal-report').classList.remove('hidden');
+            } else if (action === '3') {
+                blockUser(activeChatTargetUid);
+            } else if (action === '1') {
+                showToast(`Viewing Anonymous User Profile`);
+            }
+        };
+
+        // --- PROFILE EDITING & SHARING ---
+        function populateProfileView() {
+            if (!currentUserProfile) return;
+            document.getElementById('my-profile-avatar').src = currentUserProfile.photoURL;
+            document.getElementById('edit-name').value = currentUserProfile.displayName;
+            document.getElementById('edit-bio').value = currentUserProfile.bio || "";
+            document.getElementById('my-public-id').value = currentUserProfile.anonymousId;
+        }
+
+        window.updateProfileChanges = async () => {
+            const name = document.getElementById('edit-name').value.trim();
+            const bio = document.getElementById('edit-bio').value.trim();
+
+            if (name.length < 2 || name.length > 24) {
+                return showToast("Display name must be between 2 and 24 characters.", "error");
+            }
+
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    displayName: name,
+                    bio: bio,
+                    updatedAt: serverTimestamp()
+                });
+                currentUserProfile.displayName = name;
+                currentUserProfile.bio = bio;
+                updateSidebarAndNav();
+                showToast("Profile updated.");
+            } catch (err) {
+                showToast("Failed to update profile.", "error");
+            }
+        };
+
+        window.copyMyId = () => {
+            navigator.clipboard.writeText(currentUserProfile.anonymousId);
+            showToast("Quickk! ID copied.");
+        };
+
+        window.shareMyId = () => {
+            const shareText = `Find me on Quickk! using my anonymous ID: ${currentUserProfile.anonymousId}`;
+            if (navigator.share) {
+                navigator.share({ title: 'Quickk! ID', text: shareText });
+            } else {
+                navigator.clipboard.writeText(shareText);
+                showToast("Share text copied to clipboard.");
+            }
+        };
+
+        // --- SETTINGS PREFERENCES ---
+        window.applyThemePreference = (theme) => {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('quickk_theme', theme);
+        };
+
+        // Initialize saved theme
+        const savedTheme = localStorage.getItem('quickk_theme') || 'light';
+        applyThemePreference(savedTheme);
+        document.getElementById('setting-theme').value = savedTheme;
+
+        // --- HELPER UTILITIES ---
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTimestamp(ts) {
+            if (!ts) return "";
+            const date = new Date(ts);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatDuration(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        // --- OFFLINE DETECTION ---
+        window.addEventListener('online', () => document.getElementById('offline-notice').classList.add('hidden'));
+        window.addEventListener('offline', () => document.getElementById('offline-notice').classList.remove('hidden'));
+
     </script>
 </body>
 </html>
