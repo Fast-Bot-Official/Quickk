@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Quickk! | Anonymous Groups & Messaging 2.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quickk! | Anonymous Emergency Messaging & Groups</title>
 
-    <!-- Google Fonts & Font Awesome -->
+    <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -21,14 +21,11 @@
             --error: #ef4444;
             --success: #10b981;
             --warning: #f59e0b;
-            --sidebar-width: min(300px, 85vw);
+            --sidebar-width: 300px;
             --chat-bubble-self: #2563eb;
             --chat-bubble-other: #f1f5f9;
             --chat-bubble-self-text: #ffffff;
             --chat-bubble-other-text: #0f172a;
-            --badge-owner: #dc2626;
-            --badge-admin: #059669;
-            --badge-member: #64748b;
         }
 
         [data-theme="dark"] {
@@ -41,873 +38,658 @@
             --chat-bubble-other-text: #f8fafc;
         }
 
-        /* Anti-Overflow CSS Setup */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; min-height: 100vh; }
 
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.5;
-            min-height: 100dvh;
-        }
-
-        /* Utilities */
+        /* Utility Classes */
         .hidden { display: none !important; }
-        .exp-badge {
-            background: #8b5cf6;
-            color: #fff;
-            font-size: 0.65rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        .role-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            color: #fff;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .role-owner { background: var(--badge-owner); }
-        .role-admin { background: var(--badge-admin); }
-        .role-member { background: var(--badge-member); }
-
-        /* Buttons & Inputs */
-        .btn {
-            cursor: pointer;
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            max-width: 100%;
-            white-space: nowrap;
-        }
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: var(--border); color: var(--text-main); }
+        .btn { cursor: pointer; padding: 12px 24px; border-radius: 8px; border: none; font-weight: 600; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.95rem; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .btn-secondary { background: var(--border); color: var(--text-main); width: 100%; }
+        .btn-secondary:hover { opacity: 0.9; }
         .btn-danger { background: #fee2e2; color: var(--error); }
         .btn-danger:hover { background: #fca5a5; }
-        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
-        .btn-block { width: 100%; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
-        input, textarea, select {
-            width: 100%;
-            max-width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            outline: none;
-            background: var(--card-bg);
-            color: var(--text-main);
-            font-size: 0.9rem;
-        }
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
+        input, textarea, select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: 0.2s; background: var(--card-bg); color: var(--text-main); font-size: 0.95rem; }
+        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Layout & Navigation */
-        nav {
-            background: var(--card-bg);
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            width: 100%;
-        }
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
+        /* Emergency Warning Notice */
+        .emergency-notice { background: #fff7ed; border-left: 4px solid var(--warning); color: #9a3412; padding: 12px 16px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; }
+        [data-theme="dark"] .emergency-notice { background: #2d1b06; color: #fdba74; }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 16px;
-        }
+        /* Navigation */
+        nav { background: var(--card-bg); padding: 0.8rem 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary); }
 
-        /* Responsive Action Row & Tabs */
-        .dashboard-header {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        @media (min-width: 640px) {
-            .dashboard-header {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-        }
-
-        .header-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            width: 100%;
-        }
-        @media (min-width: 640px) {
-            .header-actions { width: auto; }
-        }
-
-        .tab-bar-container {
-            width: 100%;
-            overflow-x: auto;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .tab-bar {
-            display: flex;
-            gap: 8px;
-            min-width: max-content;
-            padding-bottom: 8px;
-        }
-        .tab-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .tab-btn.active {
-            background: var(--primary);
-            color: #fff;
-            border-color: var(--primary);
-        }
-
-        /* Responsive Card Grids */
-        .card-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .chat-card {
-            background: var(--card-bg);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            cursor: pointer;
-            transition: border-color 0.2s;
-            width: 100%;
-        }
-        .chat-card:hover { border-color: var(--primary); }
-
-        .chat-card-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-            flex: 1;
-        }
-        .chat-card-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-        .chat-card-text {
-            min-width: 0;
-            flex: 1;
-        }
-        .chat-card-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .chat-card-sub {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Sidebar & Modals */
-        .sidebar {
-            position: fixed;
-            left: calc(-1 * var(--sidebar-width));
-            top: 0;
-            width: var(--sidebar-width);
-            height: 100%;
-            background: var(--card-bg);
-            box-shadow: 5px 0 25px rgba(0,0,0,0.15);
-            z-index: 1001;
-            transition: 0.3s ease;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+        /* Sidebar Menu */
+        .sidebar { position: fixed; left: calc(-1 * var(--sidebar-width)); top: 0; width: var(--sidebar-width); height: 100%; background: var(--card-bg); box-shadow: 5px 0 25px rgba(0,0,0,0.15); z-index: 1001; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px 20px; display: flex; flex-direction: column; justify-content: space-between; }
         .sidebar.active { left: 0; }
-        .sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.3s;
-            z-index: 1000;
-        }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 1000; backdrop-filter: blur(2px); }
         .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--text-main); font-weight: 500; cursor: pointer; transition: 0.2s; text-decoration: none; margin-bottom: 4px; }
+        .sidebar-menu-item:hover { background: var(--bg); color: var(--primary); }
+        .sidebar-user-card { background: var(--bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
 
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .modal-box {
-            background: var(--card-bg);
-            border-radius: 16px;
-            width: 100%;
-            max-width: 480px;
-            max-height: 90dvh;
-            overflow-y: auto;
-            padding: 20px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+        /* Containers */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .auth-container { max-width: 450px; margin: 40px auto; padding: 40px 30px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
 
-        /* Chat Window & Composer Engine */
-        .chat-window {
-            position: fixed;
-            inset: 0;
-            background: var(--bg);
-            z-index: 500;
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            width: 100vw;
-        }
-        .chat-header {
-            background: var(--card-bg);
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .chat-composer {
-            background: var(--card-bg);
-            padding: 10px 12px;
-            padding-bottom: max(10px, env(safe-area-inset-bottom));
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
+        /* Avatars */
+        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px; border: 3px solid var(--primary); display: block; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .offline { background: var(--text-muted); }
 
-        .msg-bubble {
-            max-width: min(85%, 500px);
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 0.9rem;
-            word-break: break-word;
-            position: relative;
-        }
-        .msg-self {
-            align-self: flex-end;
-            background: var(--chat-bubble-self);
-            color: var(--chat-bubble-self-text);
-            border-bottom-right-radius: 2px;
-        }
-        .msg-other {
-            align-self: flex-start;
-            background: var(--chat-bubble-other);
-            color: var(--chat-bubble-other-text);
-            border-bottom-left-radius: 2px;
-        }
-        .msg-sender-info {
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        /* Chat & Group Dashboard */
+        .tabs-header { display: flex; gap: 10px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-        .reactions-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-top: 4px;
-        }
-        .reaction-pill {
-            background: rgba(0,0,0,0.06);
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-        }
+        .chat-list-item { background: var(--card-bg); padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.2s ease; }
+        .chat-list-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
+        .unread-badge { background: var(--primary); color: white; border-radius: 50%; padding: 2px 8px; font-size: 0.75rem; font-weight: bold; }
 
-        /* Poll UI */
-        .poll-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            margin-top: 4px;
-            width: 100%;
-            color: var(--text-main);
-        }
-        .poll-option-btn {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-top: 6px;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .poll-progress {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: rgba(37, 99, 235, 0.15);
-            z-index: 0;
-        }
+        /* Role Badges */
+        .badge { padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-left: 6px; }
+        .badge-owner { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-admin { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+        .badge-member { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
-        /* Responsive WebRTC Video Grid */
-        .call-overlay {
-            position: fixed;
-            inset: 0;
-            background: #090d16;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 16px;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-        }
-        .video-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-            max-height: calc(100dvh - 120px);
-            overflow-y: auto;
-        }
-        .video-tile {
-            background: #1e293b;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            aspect-ratio: 4/3;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .video-tile video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .video-tile-name {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-        }
+        /* Chat Window Screen */
+        .chat-window { position: fixed; inset: 0; background: var(--bg); z-index: 500; display: flex; flex-direction: column; }
+        .chat-header { background: var(--card-bg); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-composer { background: var(--card-bg); padding: 12px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; position: relative; }
 
-        .call-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 16px;
-            padding: 12px;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(8px);
-            border-radius: 30px;
-            margin: 0 auto;
-            max-width: 400px;
-            width: 100%;
-        }
-        .call-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: none;
-            background: #334155;
-            color: #fff;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        /* Message Bubbles 2.0 */
+        .msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; word-break: break-word; position: relative; animation: fadeIn 0.2s ease; display: flex; flex-direction: column; }
+        .msg-self { align-self: flex-end; background: var(--chat-bubble-self); color: var(--chat-bubble-self-text); border-bottom-right-radius: 2px; }
+        .msg-other { align-self: flex-start; background: var(--chat-bubble-other); color: var(--chat-bubble-other-text); border-bottom-left-radius: 2px; }
+        .msg-time { font-size: 0.68rem; opacity: 0.75; margin-top: 4px; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+        .msg-image, .msg-video { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 5px; cursor: pointer; object-fit: cover; }
+        .msg-sender { font-size: 0.75rem; font-weight: 700; margin-bottom: 2px; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+        
+        /* Reaction Bar */
+        .reactions-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .reaction-chip { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; border: 1px solid transparent; }
+        .reaction-chip.active { border-color: var(--primary); background: rgba(37,99,235,0.1); }
+        .msg-actions-btn { position: absolute; top: 4px; right: 4px; opacity: 0; transition: opacity 0.2s; cursor: pointer; font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.1); }
+        .msg-bubble:hover .msg-actions-btn { opacity: 1; }
+
+        /* Voice Player Controls */
+        .voice-player { display: flex; align-items: center; gap: 10px; min-width: 200px; margin-top: 4px; }
+        .voice-btn { background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 50%; color: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* One-Time Media Cards */
+        .one-time-card { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,0.05); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; border: 1px dashed var(--primary); }
+        .one-time-card.consumed { opacity: 0.6; cursor: not-allowed; border-color: var(--border); }
+
+        /* Poll UI Component */
+        .poll-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text-main); min-width: 260px; margin-top: 4px; }
+        .poll-option { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-top: 8px; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s; }
+        .poll-option-fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(37, 99, 235, 0.15); z-index: 0; transition: width 0.3s ease; }
+        .poll-option-text { position: relative; z-index: 1; display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 500; }
+
+        /* WebRTC Calling Interface Overlay */
+        .call-overlay { position: fixed; inset: 0; background: #0f172a; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 20px; color: white; }
+        .call-videos-grid { width: 100%; height: 60%; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: center; justify-center: center; }
+        .call-video-box { width: 100%; height: 100%; background: #1e293b; border-radius: 12px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+        .call-video-box video { width: 100%; height: 100%; object-fit: cover; }
+        .call-video-box .user-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .call-controls { display: flex; gap: 20px; align-items: center; }
+        .call-btn { width: 56px; height: 56px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; color: white; }
         .call-btn-danger { background: var(--error); }
+        .call-btn-success { background: var(--success); }
+        .call-btn-secondary { background: rgba(255,255,255,0.2); }
 
         /* Toasts */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            left: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-        @media (min-width: 640px) {
-            #toast-container { left: auto; max-width: 360px; }
-        }
-        .toast {
-            pointer-events: auto;
-            background: var(--card-bg);
-            color: var(--text-main);
-            padding: 12px 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-left: 4px solid var(--primary);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--card-bg); color: var(--text-main); padding: 14px 20px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; min-width: 280px; border-left: 4px solid var(--primary); animation: slideInRight 0.3s forwards; font-size: 0.9rem; }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--error); }
+        .toast.warning { border-color: var(--warning); }
 
-        .one-time-media-box {
-            background: var(--card-bg);
-            border: 1px dashed var(--primary);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            margin-top: 4px;
+        /* Modals & Drawers */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); padding: 20px; }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 16px; max-width: 500px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.2); border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+
+        /* Drawer Slide-Over */
+        .drawer { position: fixed; right: -400px; top: 0; width: 380px; height: 100%; background: var(--card-bg); box-shadow: -5px 0 25px rgba(0,0,0,0.15); z-index: 1500; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 25px 20px; display: flex; flex-direction: column; overflow-y: auto; }
+        .drawer.active { right: 0; }
+
+        /* Offline Notice */
+        #offline-notice { background: var(--error); color: white; text-align: center; padding: 8px; font-weight: 600; font-size: 0.85rem; position: sticky; top: 0; z-index: 1000; }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 15px; margin: 15px auto; }
+            .msg-bubble { max-width: 85%; }
+            #toast-container { right: 15px; left: 15px; bottom: 15px; }
+            .toast { min-width: auto; }
+            .drawer { width: 100%; right: -100%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="offline-notice" class="hidden" style="background:var(--error); color:white; text-align:center; padding:6px; font-size:0.8rem; font-weight:600;">
-        <i class="fas fa-wifi"></i> Offline - Connection lost
-    </div>
-
+    <div id="offline-notice" class="hidden"><i class="fas fa-wifi"></i> You are offline. Real-time messaging is paused.</div>
     <div id="toast-container"></div>
 
     <!-- Sidebar Drawer -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
         <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="color:var(--primary); font-weight:800;"><i class="fas fa-bolt"></i> Quickk!</h2>
-                <i class="fas fa-times" onclick="toggleSidebar()" style="cursor:pointer; font-size:1.2rem; color:var(--text-muted);"></i>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--primary); font-weight: 800;"><i class="fas fa-bolt"></i> Quickk!</h2>
+                <i class="fas fa-times" onclick="toggleSidebar()" style="cursor: pointer; font-size: 1.2rem; color: var(--text-muted);"></i>
             </div>
             
-            <div style="background:var(--bg); padding:12px; border-radius:10px; border:1px solid var(--border); text-align:center; margin-bottom:16px;">
-                <img id="sb-avatar" src="" style="width:50px; height:50px; border-radius:50%; object-fit:cover; margin-bottom:6px;">
-                <h4 id="sb-name" style="font-size:0.9rem; font-weight:700;">Loading...</h4>
-                <p id="sb-id" style="font-size:0.75rem; color:var(--text-muted);">ID: --------</p>
-                <button class="btn btn-secondary btn-sm btn-block" onclick="copyMyId()" style="margin-top:8px;">
+            <div class="sidebar-user-card" id="sidebar-user-info">
+                <img id="sb-avatar" src="" class="avatar-preview" style="width: 60px; height: 60px; margin-bottom: 8px;">
+                <h4 id="sb-name" style="font-weight: 700;">Loading...</h4>
+                <p id="sb-id" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">ID: --------</p>
+                <button class="btn btn-secondary" onclick="copyMyId()" style="margin-top: 10px; padding: 6px 12px; font-size: 0.75rem;">
                     <i class="fas fa-copy"></i> Copy Quickk! ID
                 </button>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <div class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="navigateTo('dashboard')"><i class="fas fa-comments"></i> Messages & Groups</div>
-                <div class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="navigateTo('find')"><i class="fas fa-search"></i> Find Someone</div>
-                <div class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="navigateTo('profile')"><i class="fas fa-user"></i> My Profile</div>
-                <div class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="navigateTo('settings')"><i class="fas fa-cog"></i> Settings</div>
+            <div style="margin-top: 25px;">
+                <div class="sidebar-menu-item" onclick="navigateTo('dashboard')"><i class="fas fa-comments"></i> My Chats & Groups</div>
+                <div class="sidebar-menu-item" onclick="openCreateGroupModal()"><i class="fas fa-users-cog"></i> Create New Group</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('find')"><i class="fas fa-search"></i> Find Someone</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('profile')"><i class="fas fa-user"></i> My Profile</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('settings')"><i class="fas fa-cog"></i> Settings</div>
+                <div class="sidebar-menu-item" onclick="navigateTo('privacy-safety')"><i class="fas fa-shield-alt"></i> Privacy & Safety</div>
             </div>
         </div>
-        <p style="font-size:0.7rem; color:var(--text-muted); text-align:center;">Quickk! v2.0 • Realtime Groups & WebRTC</p>
+
+        <div style="border-top: 1px solid var(--border); padding-top: 15px; text-align: center;">
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Quickk! Anonymous Emergency v2.0</p>
+        </div>
     </div>
 
-    <!-- Main Navigation Header -->
-    <nav id="main-nav" class="hidden">
+    <!-- Navigation Header -->
+    <nav id="main-nav">
         <div class="logo" onclick="toggleSidebar()">
-            <i class="fas fa-bars" style="color:var(--text-muted); font-size:1.1rem;"></i>
+            <i class="fas fa-bars" style="color: var(--text-muted); font-size: 1.1rem;"></i>
             <span>Quickk!</span>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img id="nav-user-avatar" style="width:32px; height:32px; border-radius:50%; object-fit:cover; cursor:pointer;" onclick="navigateTo('profile')">
+        <div id="nav-actions" style="display: flex; align-items: center; gap: 15px;">
+            <img id="nav-user-avatar" class="nav-avatar hidden" src="" onclick="navigateTo('profile')" title="My Profile">
         </div>
     </nav>
 
     <!-- LOADING SCREEN -->
-    <div id="screen-loading" class="container" style="text-align:center; padding-top:100px;">
-        <i class="fas fa-circle-notch fa-spin" style="font-size:2.5rem; color:var(--primary); margin-bottom:16px;"></i>
-        <h3>Initializing Quickk!...</h3>
+    <div id="screen-loading" class="auth-container fade-in" style="margin-top: 100px;">
+        <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+        <h3 id="loading-text">Starting Quickk! Messaging 2.0...</h3>
     </div>
 
-    <!-- PROFILE SETUP SCREEN -->
-    <div id="screen-profile-setup" class="container hidden" style="max-width:440px; padding-top:40px;">
-        <div style="background:var(--card-bg); padding:24px; border-radius:16px; border:1px solid var(--border); text-align:center;">
-            <h2 style="margin-bottom:8px;">Anonymous Profile</h2>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Set up your public identity.</p>
+    <!-- 1. PROFILE SETUP SCREEN -->
+    <div id="screen-profile-setup" class="auth-container hidden fade-in">
+        <h2 style="margin-bottom: 10px;">Complete Profile</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">Set up your public anonymous identity to get started.</p>
+        
+        <div class="emergency-notice">
+            <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
+            <span>Never use real names or sensitive identifying details in your bio or display name.</span>
+        </div>
 
-            <img id="setup-avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Quickk" style="width:80px; height:80px; border-radius:50%; margin:0 auto 12px; border:2px solid var(--primary); display:block;">
-            <label for="setup-avatar-input" class="btn btn-secondary btn-sm" style="margin-bottom:16px;">
-                <i class="fas fa-camera"></i> Upload Picture (&lt; 2MB)
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img id="setup-avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Quickk" class="avatar-preview">
+            <label for="setup-avatar-input" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; width: auto;">
+                <i class="fas fa-camera"></i> Upload Photo (&lt; 2MB)
             </label>
             <input type="file" id="setup-avatar-input" accept="image/*" class="hidden" onchange="previewProfileImage(event)">
+        </div>
 
-            <div style="text-align:left; margin-bottom:12px;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">DISPLAY NAME</label>
-                <input type="text" id="setup-name" placeholder="e.g. ShadowRunner" maxlength="24">
+        <div class="input-group">
+            <label>Display Name *</label>
+            <input type="text" id="setup-name" placeholder="e.g. ShadowRunner" maxlength="24">
+        </div>
+
+        <div class="input-group">
+            <label>Bio (Optional)</label>
+            <textarea id="setup-bio" rows="3" placeholder="Write a short anonymous bio..." maxlength="160"></textarea>
+        </div>
+
+        <button id="btn-save-profile" class="btn btn-primary" onclick="saveProfileProcess()">Continue to Quickk!</button>
+    </div>
+
+    <!-- 2. PRIVACY POLICY SCREEN -->
+    <div id="screen-privacy-policy" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 650px; text-align: left;">
+            <h2 style="text-align: center; margin-bottom: 10px;"><i class="fas fa-user-shield" style="color: var(--primary);"></i> Privacy Policy</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Please read and scroll to the bottom to continue.</p>
+
+            <div id="policy-scroll-box" style="height: 250px; overflow-y: auto; border: 1px solid var(--border); padding: 15px; border-radius: 8px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; background: var(--bg);" onscroll="checkPolicyScroll()">
+                <p><strong>1. Anonymous Authentication:</strong> Quickk! uses Firebase Anonymous Authentication. Your account is linked to a system UID, but no personal information (email, phone, real name) is strictly required.</p><br>
+                <p><strong>2. Anonymous ID & Profile:</strong> You are assigned an 8-digit unique ID. Your display name, bio, and profile picture are visible to anyone with whom you communicate or who searches your ID.</p><br>
+                <p><strong>3. Media, Groups & Messages:</strong> Messages and group configurations are stored in Firebase Realtime Database. Media attachments (images, voice, videos) are uploaded via Cloudinary. Uploaded media is subject to size restrictions (Images/Voice &lt; 1MB, Video &lt; 20MB, Avatars &lt; 2MB).</p><br>
+                <p><strong>4. Experimental Voice/Video Calls:</strong> Calls utilize WebRTC signaling via Firebase. Calls are peer-to-peer; Quickk! does not record call audio/video content.</p><br>
+                <p><strong>5. Emergency Use Notice:</strong> Quickk! is a peer-to-peer anonymous messaging service. <strong>It DOES NOT replace official emergency responders (911, 112, 100, etc.).</strong> If you are in immediate danger, contact local emergency services immediately.</p>
             </div>
 
-            <div style="text-align:left; margin-bottom:20px;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">BIO (OPTIONAL)</label>
-                <textarea id="setup-bio" rows="2" placeholder="Write something short..." maxlength="160"></textarea>
+            <div style="margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                    <input type="checkbox" id="chk-accept-policy" disabled onchange="togglePolicyBtn()">
+                    <span>I have read and understood the Quickk! Privacy Policy.</span>
+                </label>
             </div>
 
-            <button id="btn-save-profile" class="btn btn-primary btn-block" onclick="saveProfileProcess()">Continue</button>
+            <button id="btn-accept-policy" class="btn btn-primary" disabled onclick="acceptPrivacyPolicy()">Accept & Open Dashboard</button>
         </div>
     </div>
 
-    <!-- PRIVACY POLICY SCREEN -->
-    <div id="screen-privacy-policy" class="container hidden" style="max-width:540px; padding-top:20px;">
-        <div style="background:var(--card-bg); padding:24px; border-radius:16px; border:1px solid var(--border);">
-            <h2 style="text-align:center; margin-bottom:12px;">Privacy Policy</h2>
-            <div id="policy-scroll-box" style="height:200px; overflow-y:auto; border:1px solid var(--border); padding:12px; border-radius:8px; font-size:0.8rem; color:var(--text-muted); margin-bottom:16px;" onscroll="checkPolicyScroll()">
-                <p><strong>1. Anonymous Auth:</strong> Uses Anonymous UID.</p><br>
-                <p><strong>2. Group Privacy:</strong> Groups are managed via unique tokens. Members can see display names and public IDs.</p><br>
-                <p><strong>3. Media Limits:</strong> Video limit is strict 20 MB max. Images/Voice limit 1MB.</p><br>
-                <p><strong>4. Emergency Disclaimer:</strong> Quickk! is NOT an official emergency dispatcher.</p>
-            </div>
-            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; margin-bottom:16px; cursor:pointer;">
-                <input type="checkbox" id="chk-accept-policy" disabled onchange="togglePolicyBtn()">
-                <span>I accept the Quickk! Privacy Policy</span>
-            </label>
-            <button id="btn-accept-policy" class="btn btn-primary btn-block" disabled onclick="acceptPrivacyPolicy()">Open Dashboard</button>
-        </div>
-    </div>
-
-    <!-- MAIN DASHBOARD SCREEN -->
-    <div id="screen-dashboard" class="container hidden">
-        <div class="dashboard-header">
+    <!-- 3. DASHBOARD (MAIN CHATS & GROUPS) -->
+    <div id="screen-dashboard" class="container hidden fade-in">
+        <div class="emergency-notice">
+            <i class="fas fa-shield-alt" style="margin-top: 2px;"></i>
             <div>
-                <h2>Conversations</h2>
-                <p style="color:var(--text-muted); font-size:0.85rem;">Anonymous Direct & Group Messaging</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn btn-primary btn-sm" onclick="openCreateGroupModal()"><i class="fas fa-users-plus"></i> New Group</button>
-                <button class="btn btn-secondary btn-sm" onclick="navigateTo('find')"><i class="fas fa-search"></i> Find User</button>
+                <strong>Quickk! Emergency Communication</strong><br>
+                This app does not dispatch emergency responders. Contact your local authority in life-threatening situations.
             </div>
         </div>
 
-        <div class="tab-bar-container">
-            <div class="tab-bar">
-                <button class="tab-btn active" id="tab-btn-all" onclick="switchDashboardTab('all')">All Chats</button>
-                <button class="tab-btn" id="tab-btn-direct" onclick="switchDashboardTab('direct')">Direct Messages</button>
-                <button class="tab-btn" id="tab-btn-groups" onclick="switchDashboardTab('groups')">Groups & Communities</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h1>Conversations</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Talk anonymously. Connect quickly.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" style="width: auto;" onclick="openCreateGroupModal()">
+                    <i class="fas fa-users-plus"></i> New Group
+                </button>
+                <button class="btn btn-primary" style="width: auto;" onclick="navigateTo('find')">
+                    <i class="fas fa-plus"></i> Start Chat
+                </button>
             </div>
         </div>
 
-        <div id="dashboard-list-container" class="card-list">
+        <!-- Dashboard Tabs -->
+        <div class="tabs-header">
+            <div id="tab-btn-directs" class="tab-btn active" onclick="switchDashboardTab('directs')"><i class="fas fa-user"></i> Direct Messages</div>
+            <div id="tab-btn-groups" class="tab-btn" onclick="switchDashboardTab('groups')"><i class="fas fa-users"></i> Groups & Communities</div>
+            <div id="tab-btn-invites" class="tab-btn" onclick="switchDashboardTab('invites')"><i class="fas fa-envelope-open-text"></i> Invites & Requests</div>
+        </div>
+
+        <div id="chat-list-container">
             <!-- Dynamic chats injected here -->
         </div>
     </div>
 
-    <!-- FIND USER SCREEN -->
-    <div id="screen-find" class="container hidden" style="max-width:480px;">
-        <div style="background:var(--card-bg); padding:20px; border-radius:16px; border:1px solid var(--border);">
-            <h3>Find User by Quickk! ID</h3>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">Enter 8-digit Quickk! ID</p>
-            
-            <div style="display:flex; gap:8px; margin-bottom:16px;">
-                <input type="text" id="search-id-input" placeholder="e.g. 48291736" maxlength="8">
-                <button class="btn btn-primary" onclick="searchUserById()"><i class="fas fa-search"></i></button>
-            </div>
+    <!-- 4. FIND USER SCREEN -->
+    <div id="screen-find" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 500px;">
+            <h2>Find someone on Quickk!</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Enter an 8-digit anonymous Quickk! ID to locate a user.</p>
 
-            <div id="search-result-card" class="hidden" style="padding-top:16px; border-top:1px solid var(--border); text-align:center;">
-                <img id="sr-avatar" src="" style="width:60px; height:60px; border-radius:50%; margin-bottom:8px;">
-                <h4 id="sr-name"></h4>
-                <p id="sr-bio" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;"></p>
-                <button class="btn btn-primary btn-block" id="sr-start-btn"><i class="fas fa-paper-plane"></i> Start Direct Chat</button>
+            <div class="input-group">
+                <input type="text" id="search-id-input" placeholder="Enter 8-digit ID (e.g. 48291736)" maxlength="8" pattern="\d{8}">
+            </div>
+            <button class="btn btn-primary" onclick="searchUserById()"><i class="fas fa-search"></i> Find User</button>
+
+            <div id="search-result-card" class="hidden" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <img id="sr-avatar" src="" class="avatar-preview">
+                <h3 id="sr-name"></h3>
+                <p id="sr-bio" style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;"></p>
+                <p id="sr-id" style="font-size: 0.8rem; font-weight: bold; color: var(--primary); margin-bottom: 15px;"></p>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="sr-start-btn"><i class="fas fa-paper-plane"></i> Start Chat</button>
+                    <button class="btn btn-danger" id="sr-block-btn" style="width: auto;"><i class="fas fa-ban"></i></button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- USER PROFILE VIEW SCREEN -->
-    <div id="screen-profile" class="container hidden" style="max-width:480px;">
-        <div style="background:var(--card-bg); padding:20px; border-radius:16px; border:1px solid var(--border);">
-            <h3>My Anonymous Profile</h3>
-            <div style="text-align:center; margin:16px 0;">
-                <img id="my-profile-avatar" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--primary);">
-            </div>
-            <div style="margin-bottom:12px;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">DISPLAY NAME</label>
+    <!-- 5. USER PROFILE VIEW / EDIT SCREEN -->
+    <div id="screen-profile" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 500px;">
+            <h2>My Anonymous Profile</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Manage your anonymous public details</p>
+
+            <img id="my-profile-avatar" src="" class="avatar-preview">
+            
+            <div class="input-group">
+                <label>Display Name</label>
                 <input type="text" id="edit-name" maxlength="24">
             </div>
-            <div style="margin-bottom:12px;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">BIO</label>
-                <textarea id="edit-bio" rows="2" maxlength="160"></textarea>
+
+            <div class="input-group">
+                <label>Bio</label>
+                <textarea id="edit-bio" rows="3" maxlength="160"></textarea>
             </div>
-            <div style="margin-bottom:16px;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">YOUR QUICKK! ID</label>
-                <input type="text" id="my-public-id" readonly style="font-weight:bold;">
+
+            <div class="input-group">
+                <label>Your Quickk! ID (Public)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="my-public-id" readonly style="font-weight: bold; letter-spacing: 1px;">
+                    <button class="btn btn-secondary" style="width: auto;" onclick="copyMyId()"><i class="fas fa-copy"></i></button>
+                    <button class="btn btn-secondary" style="width: auto;" onclick="shareMyId()"><i class="fas fa-share-alt"></i></button>
+                </div>
             </div>
-            <button class="btn btn-primary btn-block" onclick="updateProfileChanges()">Save Changes</button>
+
+            <button class="btn btn-primary" onclick="updateProfileChanges()">Save Changes</button>
         </div>
     </div>
 
-    <!-- SETTINGS SCREEN -->
-    <div id="screen-settings" class="container hidden" style="max-width:480px;">
-        <div style="background:var(--card-bg); padding:20px; border-radius:16px; border:1px solid var(--border);">
-            <h3>Settings</h3>
-            <div style="margin:16px 0;">
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">THEME PREFERENCE</label>
+    <!-- 6. SETTINGS SCREEN -->
+    <div id="screen-settings" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 500px; text-align: left;">
+            <h2 style="text-align: center; margin-bottom: 20px;">Settings</h2>
+            
+            <div class="input-group">
+                <label>Appearance Theme</label>
                 <select id="setting-theme" onchange="applyThemePreference(this.value)">
                     <option value="light">Light Mode</option>
                     <option value="dark">Dark Mode</option>
                 </select>
             </div>
-            <button class="btn btn-primary btn-block" onclick="navigateTo('dashboard')">Done</button>
+
+            <div class="input-group">
+                <label>Accessibility</label>
+                <label style="display:flex; align-items:center; gap:10px; font-weight:normal; font-size:0.9rem; cursor:pointer;">
+                    <input type="checkbox" id="setting-reduce-anim"> Reduce Animations
+                </label>
+            </div>
+
+            <button class="btn btn-primary" onclick="navigateTo('dashboard')">Done</button>
         </div>
     </div>
 
-    <!-- FULL CHAT INTERFACE (DIRECT & GROUP) -->
+    <!-- 7. PRIVACY & SAFETY INFORMATIONAL SCREEN -->
+    <div id="screen-privacy-safety" class="container hidden fade-in">
+        <div class="auth-container" style="max-width: 600px; text-align: left;">
+            <h2 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-shield-alt" style="color: var(--primary);"></i> Safety & Anonymity</h2>
+            <div style="font-size: 0.9rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 12px;">
+                <p>• <strong>Internal Identity:</strong> Your account is backed by an internal Firebase UID, but users only identify you through your 8-digit Quickk! ID.</p>
+                <p>• <strong>Data Storage:</strong> Messages remain safely in Firebase RTDB, and images/voice/videos are processed through Cloudinary unsigned pipelines.</p>
+                <p>• <strong>Group Moderation:</strong> Group owners and admins can remove disruptive members and moderate content.</p>
+                <p>• <strong>Blocking & Reporting:</strong> Block troublesome users or report illegal content directly to moderation logs.</p>
+                <p>• <strong>Emergency Notice:</strong> Quickk! is not a substitute for local police, ambulance, or emergency rescue services.</p>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 25px;" onclick="navigateTo('dashboard')">Back to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- FULL SCREEN CHAT & GROUP INTERFACE -->
     <div id="chat-window" class="chat-window hidden">
         <div class="chat-header">
-            <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-                <i class="fas fa-arrow-left" onclick="closeChatWindow()" style="cursor:pointer; font-size:1.1rem; color:var(--text-muted);"></i>
-                <img id="chat-target-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; flex-shrink:0;">
-                <div style="min-width:0;">
-                    <h4 id="chat-target-name" style="font-size:0.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</h4>
-                    <p id="chat-target-sub" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Offline</p>
+            <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="openChatOrGroupDetails()">
+                <i class="fas fa-arrow-left" onclick="event.stopPropagation(); closeChatWindow();" style="cursor: pointer; font-size: 1.2rem; color: var(--text-muted);"></i>
+                <img id="chat-target-avatar" src="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <h4 id="chat-target-name" style="font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">Anonymous User</h4>
+                    <span id="chat-target-presence" style="font-size: 0.75rem; color: var(--text-muted);"><span class="status-dot offline"></span> Offline</span>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:6px;">
-                <button class="btn btn-secondary btn-sm" style="padding:6px 10px;" onclick="startAudioCall()"><i class="fas fa-phone"></i> <span class="exp-badge">EXP</span></button>
-                <button class="btn btn-secondary btn-sm" style="padding:6px 10px;" onclick="startVideoCall()"><i class="fas fa-video"></i> <span class="exp-badge">EXP</span></button>
-                <button id="chat-menu-btn" class="btn btn-secondary btn-sm" style="padding:6px 10px;" onclick="openChatContextMenu()"><i class="fas fa-ellipsis-v"></i></button>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <i id="btn-header-voice-call" class="fas fa-phone" onclick="initiateCall('voice')" style="cursor: pointer; color: var(--primary); font-size: 1.1rem;" title="Voice Call (Experimental)"></i>
+                <i id="btn-header-video-call" class="fas fa-video" onclick="initiateCall('video')" style="cursor: pointer; color: var(--primary); font-size: 1.1rem;" title="Video Call (Experimental)"></i>
+                <i class="fas fa-ellipsis-v" onclick="toggleChatMenu()" style="cursor: pointer; padding: 8px; color: var(--text-muted);"></i>
             </div>
         </div>
 
         <div id="chat-messages-container" class="chat-messages">
-            <!-- Messages render dynamically -->
+            <!-- Messages render here -->
         </div>
 
-        <div id="chat-typing-indicator" class="hidden" style="padding:2px 16px; font-size:0.7rem; color:var(--text-muted);">
+        <div id="chat-typing-indicator" style="padding: 4px 20px; font-size: 0.75rem; color: var(--text-muted);" class="hidden">
             Someone is typing...
         </div>
 
-        <!-- Composer engine -->
+        <!-- Attachment Drawer / Menu Overlay -->
+        <div id="attachment-menu" class="hidden" style="position: absolute; bottom: 65px; left: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 8px; z-index: 600;">
+            <label class="btn btn-secondary btn-sm" style="justify-content: flex-start;"><i class="fas fa-image"></i> Photo/Image <input type="file" id="chat-image-input" accept="image/*" class="hidden" onchange="handleChatImageUpload(event)"></label>
+            <label class="btn btn-secondary btn-sm" style="justify-content: flex-start;"><i class="fas fa-video"></i> Video (&lt; 20MB) <input type="file" id="chat-video-input" accept="video/*" class="hidden" onchange="handleChatVideoUpload(event)"></label>
+            <label class="btn btn-secondary btn-sm" style="justify-content: flex-start;"><i class="fas fa-eye"></i> View Once Photo <input type="file" id="chat-one-photo-input" accept="image/*" class="hidden" onchange="handleOneTimeUpload(event, 'photo')"></label>
+            <label class="btn btn-secondary btn-sm" style="justify-content: flex-start;"><i class="fas fa-eye"></i> View Once Video <input type="file" id="chat-one-video-input" accept="video/*" class="hidden" onchange="handleOneTimeUpload(event, 'video')"></label>
+            <button id="btn-menu-poll" class="btn btn-secondary btn-sm" style="justify-content: flex-start;" onclick="openCreatePollModal()"><i class="fas fa-poll"></i> Create Poll</button>
+        </div>
+
+        <!-- Chat Composer Controls -->
         <div class="chat-composer">
-            <button class="btn btn-secondary btn-sm" style="padding:8px;" onclick="openAttachmentMenu()"><i class="fas fa-paperclip"></i></button>
-            <input type="text" id="chat-text-input" placeholder="Type a message..." oninput="handleTypingEvent()" onkeypress="if(event.key==='Enter') sendTextMessage()">
-            <button id="voice-record-btn" class="btn btn-secondary btn-sm" style="padding:8px;" onclick="toggleVoiceRecording()"><i class="fas fa-microphone"></i></button>
-            <button class="btn btn-primary btn-sm" style="padding:8px 14px;" onclick="sendTextMessage()"><i class="fas fa-paper-plane"></i></button>
+            <button class="btn" style="padding: 8px; background: transparent; color: var(--text-muted);" onclick="toggleAttachmentMenu()">
+                <i class="fas fa-paperclip" style="font-size: 1.2rem;"></i>
+            </button>
+
+            <input type="text" id="chat-text-input" placeholder="Type an anonymous message..." oninput="handleTypingEvent()" onkeypress="if(event.key==='Enter') sendTextMessage()">
+
+            <button id="voice-record-btn" class="btn" style="padding: 10px; background: transparent; color: var(--text-muted);" onclick="toggleVoiceRecording()">
+                <i class="fas fa-microphone" style="font-size: 1.2rem;"></i>
+            </button>
+
+            <button class="btn btn-primary" style="width: auto; padding: 10px 16px;" onclick="sendTextMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 
-    <!-- MODAL: ATTACHMENT MENU -->
-    <div id="modal-attachments" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-attachments')">
-        <div class="modal-box" style="max-width:320px;">
-            <h3>Send Media</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <button class="btn btn-secondary" onclick="triggerFileInput('image/*')"><i class="fas fa-image"></i> Image</button>
-                <button class="btn btn-secondary" onclick="triggerFileInput('video/*')"><i class="fas fa-video"></i> Video (&lt;20MB)</button>
-                <button class="btn btn-secondary" onclick="triggerOneTimeMedia('image')"><i class="fas fa-eye"></i> 1-Time Photo</button>
-                <button class="btn btn-secondary" onclick="triggerOneTimeMedia('video')"><i class="fas fa-eye"></i> 1-Time Video</button>
-            </div>
-            <button class="btn btn-secondary btn-block" onclick="openCreatePollModal()"><i class="fas fa-poll"></i> Create Poll</button>
-            <input type="file" id="generic-file-input" class="hidden" onchange="handleFileSelected(event)">
-        </div>
-    </div>
-
-    <!-- MODAL: CREATE GROUP -->
-    <div id="modal-create-group" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-create-group')">
-        <div class="modal-box">
-            <h3>Create New Group</h3>
-            <div>
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">GROUP NAME *</label>
-                <input type="text" id="cg-name" placeholder="e.g. Secret Squad" maxlength="32">
-            </div>
-            <div>
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">DESCRIPTION (OPTIONAL)</label>
-                <textarea id="cg-desc" rows="2" placeholder="Group purpose..." maxlength="160"></textarea>
-            </div>
-            <div>
-                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">GROUP ICON (OPTIONAL)</label>
-                <input type="file" id="cg-icon-input" accept="image/*">
-            </div>
-            <div style="display:flex; gap:8px;">
-                <button class="btn btn-secondary btn-block" onclick="closeModal('modal-create-group')">Cancel</button>
-                <button class="btn btn-primary btn-block" onclick="submitCreateGroup()">Create Group</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: GROUP SETTINGS & MEMBERS -->
-    <div id="modal-group-manage" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-group-manage')">
-        <div class="modal-box">
-            <h3 id="gm-title">Group Management</h3>
-            
-            <div class="tab-bar-container">
-                <div class="tab-bar">
-                    <button class="tab-btn active" id="gm-tab-members" onclick="switchGroupManageTab('members')">Members</button>
-                    <button class="tab-btn" id="gm-tab-add" onclick="switchGroupManageTab('add')">Add / Invite</button>
-                    <button class="tab-btn" id="gm-tab-settings" onclick="switchGroupManageTab('settings')">Settings</button>
-                </div>
-            </div>
-
-            <!-- Members Tab -->
-            <div id="gm-panel-members">
-                <div id="gm-member-list" class="card-list" style="max-height:240px; overflow-y:auto;">
-                    <!-- Members rendered dynamically -->
-                </div>
-            </div>
-
-            <!-- Add / Invite Tab -->
-            <div id="gm-panel-add" class="hidden">
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">Add Member by Quickk! ID</p>
-                <div style="display:flex; gap:8px; margin-bottom:12px;">
-                    <input type="text" id="gm-add-id" placeholder="8-digit ID" maxlength="8">
-                    <button class="btn btn-primary btn-sm" onclick="addMemberByQuickkId()"><i class="fas fa-plus"></i> Add</button>
-                </div>
-                <hr style="border:0; border-top:1px solid var(--border); margin:12px 0;">
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">Invite Link / QR Code</p>
-                <button class="btn btn-secondary btn-block btn-sm" onclick="copyGroupInviteLink()"><i class="fas fa-link"></i> Copy Invite Link</button>
-            </div>
-
-            <!-- Settings Tab -->
-            <div id="gm-panel-settings" class="hidden">
-                <div style="margin-bottom:12px;">
-                    <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">REQUIRE APPROVAL TO JOIN</label>
-                    <select id="gm-set-approval">
-                        <option value="false">No (Anyone with link can join)</option>
-                        <option value="true">Yes (Admin approval required)</option>
-                    </select>
-                </div>
-                <button class="btn btn-danger btn-block btn-sm" id="gm-btn-delete-group" onclick="confirmDeleteGroup()"><i class="fas fa-trash"></i> Delete Group Permanently</button>
-            </div>
-
-            <button class="btn btn-secondary btn-block" onclick="closeModal('modal-group-manage')">Close</button>
-        </div>
-    </div>
-
-    <!-- MODAL: CREATE POLL -->
-    <div id="modal-create-poll" class="modal-overlay hidden" onclick="if(event.target===this) closeModal('modal-create-poll')">
-        <div class="modal-box">
-            <h3>Create Poll</h3>
-            <input type="text" id="poll-question" placeholder="Poll Question..." maxlength="100">
-            <div id="poll-options-container" style="display:flex; flex-direction:column; gap:8px;">
-                <input type="text" class="poll-option-input" placeholder="Option 1" maxlength="40">
-                <input type="text" class="poll-option-input" placeholder="Option 2" maxlength="40">
-            </div>
-            <button class="btn btn-secondary btn-sm" onclick="addPollOptionInput()"><i class="fas fa-plus"></i> Add Option</button>
-            <div style="display:flex; gap:8px;">
-                <button class="btn btn-secondary btn-block" onclick="closeModal('modal-create-poll')">Cancel</button>
-                <button class="btn btn-primary btn-block" onclick="submitCreatePoll()">Post Poll</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- WEBRTC EXPERIMENTAL CALL OVERLAY -->
+    <!-- WEBRTC CALL OVERLAY -->
     <div id="call-overlay" class="call-overlay hidden">
-        <div style="text-align:center; color:#fff;">
-            <h4 id="call-status-title">Call in Progress...</h4>
-            <span class="exp-badge">EXPERIMENTAL WEBRTC</span>
+        <div style="text-align: center;">
+            <h3 id="call-title">Calling...</h3>
+            <p id="call-status-label" style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Connecting WebRTC signaling...</p>
         </div>
 
-        <div id="call-video-grid" class="video-grid">
-            <div class="video-tile" id="tile-local">
-                <video id="video-local" autoplay playsinline muted></video>
-                <span class="video-tile-name">You</span>
+        <div class="call-videos-grid" id="call-videos-grid">
+            <div class="call-video-box">
+                <video id="local-video" autoplay playsinline muted></video>
+                <div class="user-label">You</div>
             </div>
-            <div class="video-tile" id="tile-remote">
-                <video id="video-remote" autoplay playsinline></video>
-                <span class="video-tile-name" id="remote-tile-name">Peer</span>
+            <div class="call-video-box" id="remote-video-container">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="user-label" id="remote-user-label">Remote User</div>
             </div>
         </div>
 
         <div class="call-controls">
-            <button class="call-btn" id="call-btn-mute" onclick="toggleCallMute()"><i class="fas fa-microphone"></i></button>
-            <button class="call-btn" id="call-btn-cam" onclick="toggleCallCamera()"><i class="fas fa-video"></i></button>
-            <button class="call-btn call-btn-danger" onclick="endCurrentCall()"><i class="fas fa-phone-slash"></i></button>
+            <button class="call-btn call-btn-secondary" id="btn-toggle-mic" onclick="toggleCallMic()"><i class="fas fa-microphone"></i></button>
+            <button class="call-btn call-btn-secondary" id="btn-toggle-cam" onclick="toggleCallCam()"><i class="fas fa-video"></i></button>
+            <button class="call-btn call-btn-danger" onclick="endCall()"><i class="fas fa-phone-slash"></i></button>
         </div>
     </div>
 
-    <!-- FIREBASE & APPLICATION LOGIC -->
+    <!-- GROUP DETAILS DRAWER -->
+    <div id="drawer-group-details" class="drawer">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>Group Details</h3>
+            <i class="fas fa-times" onclick="closeDrawer('drawer-group-details')" style="cursor: pointer; font-size: 1.2rem;"></i>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img id="gd-icon" src="" class="avatar-preview" style="width: 80px; height: 80px;">
+            <h3 id="gd-name"></h3>
+            <p id="gd-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;"></p>
+            <span id="gd-count" style="font-size: 0.75rem; color: var(--primary); font-weight: bold;"></span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+            <button class="btn btn-secondary btn-sm" onclick="openAddMemberModal()"><i class="fas fa-user-plus"></i> Add Members</button>
+            <button class="btn btn-secondary btn-sm" onclick="openShareInviteModal()"><i class="fas fa-qrcode"></i> Invite Link & QR Code</button>
+            <button id="btn-gd-requests" class="btn btn-secondary btn-sm hidden" onclick="openJoinRequestsModal()"><i class="fas fa-user-clock"></i> Join Requests (<span id="gd-req-count">0</span>)</button>
+        </div>
+
+        <h4>Members Directory</h4>
+        <input type="text" id="gd-member-search" placeholder="Search members..." style="margin: 10px 0;" oninput="filterGroupMembersDirectory()">
+        <div id="gd-members-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto;">
+            <!-- Members list injected -->
+        </div>
+
+        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;">
+            <button id="btn-gd-leave" class="btn btn-danger" onclick="leaveGroupProcess()"><i class="fas fa-sign-out-alt"></i> Leave Group</button>
+            <button id="btn-gd-delete" class="btn btn-danger hidden" onclick="deleteGroupProcess()"><i class="fas fa-trash-alt"></i> Delete Group Permanently</button>
+        </div>
+    </div>
+
+    <!-- CREATE GROUP MODAL -->
+    <div id="modal-create-group" class="modal hidden">
+        <div class="modal-content">
+            <h3>Create Anonymous Group</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Form a community or emergency response team.</p>
+
+            <div class="input-group">
+                <label>Group Name *</label>
+                <input type="text" id="cg-name" placeholder="e.g. Neighborhood Safety Watch" maxlength="32">
+            </div>
+
+            <div class="input-group">
+                <label>Description (Optional)</label>
+                <textarea id="cg-desc" rows="2" placeholder="Purpose of this group..." maxlength="200"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; text-transform: none;">
+                    <input type="checkbox" id="cg-require-approval"> Require Approval to Join
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-create-group')">Cancel</button>
+                <button class="btn btn-primary" id="btn-submit-create-group" onclick="submitCreateGroup()">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD MEMBER MODAL -->
+    <div id="modal-add-member" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add Member by Quickk! ID</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Enter the 8-digit ID of the user you want to add or invite.</p>
+
+            <div class="input-group">
+                <input type="text" id="add-member-id-input" placeholder="8-digit ID" maxlength="8">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-add-member')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitAddMemberToGroup()">Add Member</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHARE INVITE & QR MODAL -->
+    <div id="modal-share-invite" class="modal hidden">
+        <div class="modal-content" style="text-align: center;">
+            <h3>Group Invite & QR Code</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 10px 0;">Share this QR code or invite token with users to let them join.</p>
+
+            <div id="qr-code-box" style="margin: 20px auto; width: 180px; height: 180px; background: white; padding: 10px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;">
+                <img id="qr-code-img" src="" style="width: 100%; height: 100%;">
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="invite-link-input" readonly style="font-weight: bold; text-align: center;">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="copyInviteToken()"><i class="fas fa-copy"></i> Copy Token</button>
+                <button class="btn btn-primary" onclick="closeModal('modal-share-invite')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE POLL MODAL -->
+    <div id="modal-create-poll" class="modal hidden">
+        <div class="modal-content">
+            <h3>Create Anonymous Poll</h3>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Question *</label>
+                <input type="text" id="poll-question" placeholder="e.g. Where is assistance needed?" maxlength="120">
+            </div>
+
+            <div id="poll-options-container">
+                <div class="input-group">
+                    <label>Option 1</label>
+                    <input type="text" class="poll-opt-input" placeholder="Option A" maxlength="60">
+                </div>
+                <div class="input-group">
+                    <label>Option 2</label>
+                    <input type="text" class="poll-opt-input" placeholder="Option B" maxlength="60">
+                </div>
+            </div>
+
+            <button class="btn btn-secondary btn-sm" onclick="addPollOptionInput()" style="margin-bottom: 20px;"><i class="fas fa-plus"></i> Add Option</button>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-create-poll')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitCreatePoll()">Post Poll</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONE-TIME MEDIA VIEWER MODAL -->
+    <div id="modal-one-time-viewer" class="modal hidden">
+        <div class="modal-content" style="text-align: center; max-width: 600px;">
+            <h3><i class="fas fa-eye-slash" style="color: var(--warning);"></i> View Once Media</h3>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px;">Experimental screen capture deterrent active. Media closes automatically upon leaving.</p>
+
+            <div id="one-time-media-container" style="max-height: 400px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: black; border-radius: 8px;">
+                <!-- Image or Video injected -->
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 20px;" onclick="closeOneTimeViewer()">Close Media</button>
+        </div>
+    </div>
+
+    <!-- VOICE RECORDING PREVIEW MODAL -->
+    <div id="modal-voice-preview" class="modal hidden">
+        <div class="modal-content" style="text-align: center;">
+            <h3>Voice Note Preview</h3>
+            <p id="voice-duration-label" style="color: var(--text-muted); margin: 10px 0;">00:00</p>
+            <audio id="voice-audio-preview" controls style="width: 100%; margin: 15px 0;"></audio>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="cancelVoiceNote()">Discard</button>
+                <button class="btn btn-primary" onclick="uploadAndSendVoiceNote()">Send Voice Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORT MODAL -->
+    <div id="modal-report" class="modal hidden">
+        <div class="modal-content">
+            <h3>Report Content or Member</h3>
+            <div class="input-group" style="margin-top: 15px;">
+                <label>Category</label>
+                <select id="report-category">
+                    <option value="Harassment">Harassment</option>
+                    <option value="Bullying">Bullying</option>
+                    <option value="Spam">Spam</option>
+                    <option value="Threats">Threatening Behavior</option>
+                    <option value="Inappropriate">Inappropriate Content</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Details</label>
+                <textarea id="report-description" rows="3" placeholder="Describe the issue..."></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-report')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitContentReport()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULE & APPLICATION LOGIC 2.0 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, push, update, remove, onValue, onDisconnect, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get, push, update, remove, onValue, off, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Firebase Configuration
+        // --- FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBEnDg8YoBHASIDMFQNLwq_Jww1VgbeTzA",
             authDomain: "quickkmessaging.firebaseapp.com",
@@ -922,51 +704,67 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // Cloudinary Pipeline Configuration
+        // --- CLOUDINARY CONFIGURATION ---
         const CLOUDINARY_CLOUD_NAME = "dgdaqwfib";
         const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
-        // Global State Engine
+        // GLOBAL APPLICATION STATE
         let currentUser = null;
         let currentUserProfile = null;
         let activeChatId = null;
-        let activeChatType = null; // 'direct' or 'group'
+        let activeChatType = 'direct'; // 'direct' or 'group'
         let activeChatTargetUid = null;
+        let activeGroupData = null;
         let activeChatListener = null;
-        let activeDashboardTab = 'all';
-        let mediaRecorder = null;
-        let audioChunks = [];
+        let activeCallSession = null;
         let peerConnection = null;
         let localStream = null;
-        let activeCallId = null;
-        let pendingOneTimeMedia = false;
+        let typingTimeout = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let voiceBlob = null;
+        let voiceTimerInterval = null;
+        let voiceSeconds = 0;
+        let currentDashboardTab = 'directs';
+        let reportContext = {};
 
-        const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        // WebRTC STUN Servers
+        const rtcConfiguration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
 
-        // Toast Engine
+        // --- TOAST NOTIFICATIONS ---
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast`;
-            toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : (type === 'warning' ? 'var(--warning)' : 'var(--primary)');
-            toast.innerHTML = `<i class="fas fa-info-circle" style="color:var(--primary)"></i> <span>${escapeHtml(msg)}</span>`;
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : (type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+            toast.innerHTML = `<i class="fas ${icon}" style="color: var(--${type === 'info' ? 'primary' : type})"></i> <span>${escapeHtml(msg)}</span>`;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+            setTimeout(() => toast.remove(), 4000);
         };
 
-        // Navigation Engine
+        // --- UI NAVIGATION & TAB ENGINE ---
         window.navigateTo = (screenId) => {
-            ['loading', 'profile-setup', 'privacy-policy', 'dashboard', 'find', 'profile', 'settings'].forEach(s => {
-                const el = document.getElementById(`screen-${s}`);
-                if (el) el.classList.add('hidden');
+            ['loading', 'profile-setup', 'privacy-policy', 'dashboard', 'find', 'profile', 'settings', 'privacy-safety'].forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
             });
             document.getElementById(`screen-${screenId}`).classList.remove('hidden');
-            document.getElementById('main-nav').classList.toggle('hidden', ['loading', 'profile-setup', 'privacy-policy'].includes(screenId));
+            
+            if(['loading', 'profile-setup', 'privacy-policy'].includes(screenId)) {
+                document.getElementById('main-nav').classList.add('hidden');
+            } else {
+                document.getElementById('main-nav').classList.remove('hidden');
+            }
+
             document.getElementById('sidebar').classList.remove('active');
             document.getElementById('sidebar-overlay').classList.remove('active');
 
-            if (screenId === 'dashboard') loadDashboardList();
-            if (screenId === 'profile') populateProfileView();
+            if(screenId === 'dashboard') loadDashboardContent();
+            if(screenId === 'profile') populateProfileView();
         };
 
         window.toggleSidebar = () => {
@@ -975,12 +773,21 @@
         };
 
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.closeDrawer = (id) => document.getElementById(id).classList.remove('active');
 
-        // Cloudinary Upload Engine
+        window.switchDashboardTab = (tab) => {
+            currentDashboardTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-btn-${tab}`).classList.add('active');
+            loadDashboardContent();
+        };
+
+        // --- CLOUDINARY UPLOAD PIPELINE ---
         async function uploadToCloudinary(file, maxMbAllowed = 1) {
             if (file.size > maxMbAllowed * 1024 * 1024) {
-                throw new Error(`File exceeds limit of ${maxMbAllowed} MB.`);
+                throw new Error(`File size exceeds limit of ${maxMbAllowed} MB.`);
             }
+
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -995,7 +802,19 @@
             return data.secure_url;
         }
 
-        // Authentication & Profile Setup Flow
+        // --- ANONYMOUS 8-DIGIT ID GENERATOR ---
+        async function generateUniqueAnonymousId() {
+            let unique = false;
+            let code = "";
+            while (!unique) {
+                code = Math.floor(10000000 + Math.random() * 90000000).toString();
+                const snapshot = await get(ref(db, `anonymousIds/${code}`));
+                if (!snapshot.exists()) unique = true;
+            }
+            return code;
+        }
+
+        // --- AUTHENTICATION & INITIALIZATION FLOW ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -1003,7 +822,11 @@
                 listenForIncomingCalls(user.uid);
                 await verifyUserProfileState(user.uid);
             } else {
-                try { await signInAnonymously(auth); } catch (err) { showToast("Auth failed.", "error"); }
+                try {
+                    await signInAnonymously(auth);
+                } catch (err) {
+                    showToast("Failed to initialize anonymous authentication session.", "error");
+                }
             }
         });
 
@@ -1021,7 +844,9 @@
                         navigateTo('dashboard');
                     }
                 }
-            } catch (err) { showToast("Database connectivity error.", "error"); }
+            } catch (err) {
+                showToast("Database connectivity error.", "error");
+            }
         }
 
         function updateSidebarAndNav() {
@@ -1032,24 +857,27 @@
             
             const navAvatar = document.getElementById('nav-user-avatar');
             navAvatar.src = currentUserProfile.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUserProfile.anonymousId}`;
+            navAvatar.classList.remove('hidden');
         }
 
         function monitorPresence(uid) {
-            const userRef = ref(db, `users/${uid}`);
-            onValue(ref(db, '.info/connected'), (snap) => {
+            const userStatusRef = ref(db, `users/${uid}`);
+            const connectedRef = ref(db, '.info/connected');
+
+            onValue(connectedRef, (snap) => {
                 if (snap.val() === true) {
-                    onDisconnect(userRef).update({ online: false, lastSeen: serverTimestamp() });
-                    update(userRef, { online: true });
+                    onDisconnect(userStatusRef).update({ online: false, lastSeen: serverTimestamp() });
+                    update(userStatusRef, { online: true });
                 }
             });
         }
 
-        // Profile Management Operations
+        // --- PROFILE CREATION & UPDATES ---
         let selectedProfileImageFile = null;
         window.previewProfileImage = (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) return showToast("Image under 2MB required.", "error");
+            if (file.size > 2 * 1024 * 1024) return showToast("Profile picture must be under 2 MB.", "error");
             selectedProfileImageFile = file;
             document.getElementById('setup-avatar-preview').src = URL.createObjectURL(file);
         };
@@ -1057,20 +885,28 @@
         window.saveProfileProcess = async () => {
             const name = document.getElementById('setup-name').value.trim();
             const bio = document.getElementById('setup-bio').value.trim();
-            if (name.length < 2 || name.length > 24) return showToast("Name must be 2-24 chars.", "error");
+            const btn = document.getElementById('btn-save-profile');
+
+            if (name.length < 2 || name.length > 24) return showToast("Display name must be between 2 and 24 characters.", "error");
+
+            btn.disabled = true;
+            btn.textContent = "Saving profile...";
 
             try {
                 let photoURL = `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`;
                 if (selectedProfileImageFile) photoURL = await uploadToCloudinary(selectedProfileImageFile, 2);
 
-                const anonId = Math.floor(10000000 + Math.random() * 90000000).toString();
+                const anonId = await generateUniqueAnonymousId();
+
                 const profileData = {
                     anonymousId: anonId,
                     displayName: name,
                     bio: bio,
                     photoURL: photoURL,
                     createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
                     online: true,
+                    lastSeen: serverTimestamp(),
                     privacyAccepted: false
                 };
 
@@ -1078,10 +914,17 @@
                 await set(ref(db, `anonymousIds/${anonId}`), currentUser.uid);
 
                 currentUserProfile = profileData;
+                showToast("Profile saved successfully!");
                 navigateTo('privacy-policy');
-            } catch (err) { showToast(err.message || "Failed to save profile.", "error"); }
+            } catch (err) {
+                showToast(err.message || "Failed to save profile.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Continue to Quickk!";
+            }
         };
 
+        // --- PRIVACY POLICY ENFORCEMENT ---
         window.checkPolicyScroll = () => {
             const box = document.getElementById('policy-scroll-box');
             if (box.scrollTop + box.clientHeight >= box.scrollHeight - 20) {
@@ -1090,149 +933,345 @@
         };
 
         window.togglePolicyBtn = () => {
-            document.getElementById('btn-accept-policy').disabled = !document.getElementById('chk-accept-policy').checked;
+            const chk = document.getElementById('chk-accept-policy');
+            document.getElementById('btn-accept-policy').disabled = !chk.checked;
         };
 
         window.acceptPrivacyPolicy = async () => {
-            await update(ref(db, `users/${currentUser.uid}`), { privacyAccepted: true });
-            currentUserProfile.privacyAccepted = true;
-            updateSidebarAndNav();
-            navigateTo('dashboard');
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    privacyAccepted: true,
+                    privacyPolicyVersion: "2.0",
+                    privacyAcceptedAt: serverTimestamp()
+                });
+                currentUserProfile.privacyAccepted = true;
+                updateSidebarAndNav();
+                showToast("Welcome to Quickk! 2.0");
+                navigateTo('dashboard');
+            } catch (err) {
+                showToast("Failed to accept privacy policy.", "error");
+            }
         };
 
-        // Dashboard & Tab Engine
-        window.switchDashboardTab = (tab) => {
-            activeDashboardTab = tab;
-            ['all', 'direct', 'groups'].forEach(t => {
-                document.getElementById(`tab-btn-${t}`).classList.toggle('active', t === tab);
-            });
-            loadDashboardList();
-        };
+        // --- DASHBOARD LISTING (DIRECTS, GROUPS & INVITES) ---
+        function loadDashboardContent() {
+            const container = document.getElementById('chat-list-container');
+            container.innerHTML = `<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>`;
 
-        function loadDashboardList() {
-            const container = document.getElementById('dashboard-list-container');
-            container.innerHTML = "";
+            if (currentDashboardTab === 'directs') {
+                loadUserDirectChats();
+            } else if (currentDashboardTab === 'groups') {
+                loadUserGroupsList();
+            } else if (currentDashboardTab === 'invites') {
+                loadUserInvitesAndRequests();
+            }
+        }
 
-            // Listen for direct chats
-            onValue(ref(db, `userChats/${currentUser.uid}`), async (snap) => {
+        function loadUserDirectChats() {
+            const container = document.getElementById('chat-list-container');
+            const userChatsRef = ref(db, `userChats/${currentUser.uid}`);
+
+            onValue(userChatsRef, async (snap) => {
                 container.innerHTML = "";
-                const directChats = snap.val() || {};
-
-                if (activeDashboardTab !== 'groups') {
-                    for (let chatId in directChats) {
-                        const chat = directChats[chatId];
-                        const userSnap = await get(ref(db, `users/${chat.otherUid}`));
-                        const targetUser = userSnap.val() || { displayName: "Anonymous User" };
-
-                        const card = document.createElement('div');
-                        card.className = "chat-card";
-                        card.onclick = () => openChatWindow(chatId, 'direct', chat.otherUid, targetUser.displayName, targetUser.photoURL);
-                        card.innerHTML = `
-                            <div class="chat-card-info">
-                                <img src="${targetUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${chat.otherUid}`}" class="chat-card-avatar">
-                                <div class="chat-card-text">
-                                    <div class="chat-card-title">${escapeHtml(targetUser.displayName)}</div>
-                                    <div class="chat-card-sub">${escapeHtml(chat.lastMessage || 'Direct Message')}</div>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    }
+                if (!snap.exists()) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <h3>No direct chats yet</h3>
+                            <p style="font-size: 0.85rem; margin-top: 5px;">Find a user using their 8-digit Quickk! ID.</p>
+                            <button class="btn btn-primary" style="margin-top: 20px; width: auto;" onclick="navigateTo('find')">Start a Chat</button>
+                        </div>
+                    `;
+                    return;
                 }
 
-                // Listen for group chats
-                if (activeDashboardTab !== 'direct') {
-                    const userGroupsSnap = await get(ref(db, `userGroups/${currentUser.uid}`));
-                    const userGroups = userGroupsSnap.val() || {};
+                const chatsData = snap.val();
+                for (let chatId in chatsData) {
+                    const chatItem = chatsData[chatId];
+                    const targetUid = chatItem.otherUid;
 
-                    for (let groupId in userGroups) {
-                        const groupSnap = await get(ref(db, `groups/${groupId}/info`));
-                        if (!groupSnap.exists()) continue;
-                        const group = groupSnap.val();
+                    const userSnap = await get(ref(db, `users/${targetUid}`));
+                    const targetUser = userSnap.val() || { displayName: "Anonymous User", photoURL: "" };
 
-                        const card = document.createElement('div');
-                        card.className = "chat-card";
-                        card.onclick = () => openChatWindow(groupId, 'group', null, group.name, group.icon || `https://api.dicebear.com/7.x/identicon/svg?seed=${groupId}`);
-                        card.innerHTML = `
-                            <div class="chat-card-info">
-                                <img src="${group.icon || `https://api.dicebear.com/7.x/identicon/svg?seed=${groupId}`}" class="chat-card-avatar">
-                                <div class="chat-card-text">
-                                    <div class="chat-card-title"><i class="fas fa-users" style="color:var(--primary); font-size:0.8rem;"></i> ${escapeHtml(group.name)}</div>
-                                    <div class="chat-card-sub">${group.memberCount || 1} members</div>
-                                </div>
+                    const card = document.createElement('div');
+                    card.className = "chat-list-item";
+                    card.onclick = () => openChatWindow(chatId, 'direct', targetUid, targetUser);
+
+                    let lastMsgText = chatItem.lastMessage || "No messages yet";
+
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="${targetUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUid}`}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <h4 style="font-size: 0.95rem;">${escapeHtml(targetUser.displayName)}</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(lastMsgText)}</p>
                             </div>
-                        `;
-                        container.appendChild(card);
-                    }
-                }
-
-                if (container.children.length === 0) {
-                    container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px; font-size:0.85rem;">No active conversations found.</p>`;
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">${chatItem.lastMessageTimestamp ? formatTimestamp(chatItem.lastMessageTimestamp) : ''}</span>
+                            ${chatItem.unreadCount > 0 ? `<div class="unread-badge" style="margin-top: 5px;">${chatItem.unreadCount}</div>` : ''}
+                        </div>
+                    `;
+                    container.appendChild(card);
                 }
             });
         }
 
-        // Group Management Operations
-        window.openCreateGroupModal = () => {
-            document.getElementById('modal-create-group').classList.remove('hidden');
-        };
+        function loadUserGroupsList() {
+            const container = document.getElementById('chat-list-container');
+            const userGroupsRef = ref(db, `userGroups/${currentUser.uid}`);
+
+            onValue(userGroupsRef, async (snap) => {
+                container.innerHTML = "";
+                if (!snap.exists()) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <h3>No groups joined</h3>
+                            <p style="font-size: 0.85rem; margin-top: 5px;">Create a group or ask a friend for an invite token.</p>
+                            <button class="btn btn-primary" style="margin-top: 20px; width: auto;" onclick="openCreateGroupModal()">Create Group</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const groupsMap = snap.val();
+                for (let groupId in groupsMap) {
+                    const groupSnap = await get(ref(db, `groups/${groupId}`));
+                    if (!groupSnap.exists()) continue;
+                    const group = groupSnap.val();
+
+                    const card = document.createElement('div');
+                    card.className = "chat-list-item";
+                    card.onclick = () => openChatWindow(groupId, 'group', null, group);
+
+                    const role = groupsMap[groupId].role || 'member';
+
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="${group.groupIcon || `https://api.dicebear.com/7.x/identicon/svg?seed=${groupId}`}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <h4 style="font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                                    ${escapeHtml(group.groupName)}
+                                    <span class="badge badge-${role}">${role}</span>
+                                </h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">${group.memberCount || 1} members • ${escapeHtml(group.lastMessage || 'No messages')}</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">${group.lastMessageTimestamp ? formatTimestamp(group.lastMessageTimestamp) : ''}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        function loadUserInvitesAndRequests() {
+            const container = document.getElementById('chat-list-container');
+            const invitesRef = ref(db, `groupInvites/${currentUser.uid}`);
+
+            onValue(invitesRef, async (snap) => {
+                container.innerHTML = "";
+                if (!snap.exists()) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="fas fa-envelope-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <h3>No pending invitations</h3>
+                            <p style="font-size: 0.85rem; margin-top: 5px;">Group invites will appear here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const invites = snap.val();
+                for (let inviteId in invites) {
+                    const invite = invites[inviteId];
+                    if (invite.status !== 'pending') continue;
+
+                    const groupSnap = await get(ref(db, `groups/${invite.groupId}`));
+                    if (!groupSnap.exists()) continue;
+                    const group = groupSnap.val();
+
+                    const card = document.createElement('div');
+                    card.className = "chat-list-item";
+
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="${group.groupIcon || `https://api.dicebear.com/7.x/identicon/svg?seed=${invite.groupId}`}" style="width: 48px; height: 48px; border-radius: 50%;">
+                            <div>
+                                <h4>${escapeHtml(group.groupName)}</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">Invited to join group</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary btn-sm" onclick="respondToGroupInvite('${inviteId}', '${invite.groupId}', true)"><i class="fas fa-check"></i> Accept</button>
+                            <button class="btn btn-danger btn-sm" onclick="respondToGroupInvite('${inviteId}', '${invite.groupId}', false)"><i class="fas fa-times"></i></button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        // --- GROUP CREATION & MANAGEMENT ---
+        window.openCreateGroupModal = () => document.getElementById('modal-create-group').classList.remove('hidden');
 
         window.submitCreateGroup = async () => {
             const name = document.getElementById('cg-name').value.trim();
             const desc = document.getElementById('cg-desc').value.trim();
-            const iconFile = document.getElementById('cg-icon-input').files[0];
+            const requireApproval = document.getElementById('cg-require-approval').checked;
+            const btn = document.getElementById('btn-submit-create-group');
 
-            if (!name) return showToast("Group name is required.", "error");
+            if (!name || name.length > 32) return showToast("Group name must be between 1 and 32 characters.", "error");
 
+            btn.disabled = true;
             try {
-                let iconUrl = "";
-                if (iconFile) iconUrl = await uploadToCloudinary(iconFile, 2);
-
                 const groupRef = push(ref(db, 'groups'));
                 const groupId = groupRef.key;
 
                 const groupData = {
-                    info: {
-                        name: name,
-                        description: desc,
-                        icon: iconUrl,
-                        ownerUid: currentUser.uid,
-                        createdAt: serverTimestamp(),
-                        memberCount: 1
-                    },
-                    members: {
-                        [currentUser.uid]: { role: 'owner', joinedAt: serverTimestamp() }
-                    }
+                    groupId: groupId,
+                    groupName: name,
+                    description: desc,
+                    groupIcon: `https://api.dicebear.com/7.x/identicon/svg?seed=${groupId}`,
+                    ownerUid: currentUser.uid,
+                    createdAt: serverTimestamp(),
+                    memberCount: 1,
+                    requireApproval: requireApproval
                 };
 
-                await set(ref(db, `groups/${groupId}`), groupData);
-                await set(ref(db, `userGroups/${currentUser.uid}/${groupId}`), true);
+                await set(groupRef, groupData);
+
+                // Add owner membership
+                await set(ref(db, `groupMembers/${groupId}/${currentUser.uid}`), {
+                    role: 'owner',
+                    joinedAt: serverTimestamp()
+                });
+
+                // Add to user groups index
+                await set(ref(db, `userGroups/${currentUser.uid}/${groupId}`), {
+                    role: 'owner',
+                    joinedAt: serverTimestamp()
+                });
 
                 closeModal('modal-create-group');
                 showToast("Group created successfully!");
-                loadDashboardList();
-            } catch (err) { showToast(err.message || "Failed to create group.", "error"); }
+                switchDashboardTab('groups');
+            } catch (err) {
+                showToast("Failed to create group.", "error");
+            } finally {
+                btn.disabled = false;
+            }
         };
 
-        // Full Chat Window Engine
-        function openChatWindow(chatId, type, targetUid, title, avatar) {
+        // --- USER SEARCH & DIRECT CHAT INITIALIZATION ---
+        window.searchUserById = async () => {
+            const idInput = document.getElementById('search-id-input').value.trim();
+            if (!/^\d{8}$/.test(idInput)) return showToast("Please enter a valid 8-digit Quickk! ID.", "error");
+
+            try {
+                const snap = await get(ref(db, `anonymousIds/${idInput}`));
+                if (!snap.exists()) {
+                    document.getElementById('search-result-card').classList.add('hidden');
+                    return showToast("No Quickk! user found with this ID.", "warning");
+                }
+
+                const targetUid = snap.val();
+                if (targetUid === currentUser.uid) return showToast("That is your own Quickk! ID.", "warning");
+
+                const userSnap = await get(ref(db, `users/${targetUid}`));
+                const targetUser = userSnap.val();
+
+                document.getElementById('sr-avatar').src = targetUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${idInput}`;
+                document.getElementById('sr-name').textContent = targetUser.displayName;
+                document.getElementById('sr-bio').textContent = targetUser.bio || "No bio provided.";
+                document.getElementById('sr-id').textContent = `Quickk! ID: ${targetUser.anonymousId}`;
+
+                document.getElementById('sr-start-btn').onclick = () => openDirectConversation(targetUid, targetUser);
+                document.getElementById('sr-block-btn').onclick = () => blockUser(targetUid);
+
+                document.getElementById('search-result-card').classList.remove('hidden');
+            } catch (err) {
+                showToast("Error searching for user.", "error");
+            }
+        };
+
+        async function openDirectConversation(targetUid, targetUser) {
+            const chatId = [currentUser.uid, targetUid].sort().join("_");
+            const chatRef = ref(db, `chats/${chatId}`);
+            const chatSnap = await get(chatRef);
+
+            if (!chatSnap.exists()) {
+                await set(chatRef, {
+                    type: "direct",
+                    createdAt: serverTimestamp(),
+                    createdBy: currentUser.uid,
+                    members: { [currentUser.uid]: true, [targetUid]: true }
+                });
+
+                await set(ref(db, `userChats/${currentUser.uid}/${chatId}`), { otherUid: targetUid, unreadCount: 0 });
+                await set(ref(db, `userChats/${targetUid}/${chatId}`), { otherUid: currentUser.uid, unreadCount: 0 });
+            }
+
+            openChatWindow(chatId, 'direct', targetUid, targetUser);
+        }
+
+        // --- FULL CHAT ENGINE 2.0 (DIRECT & GROUPS) ---
+        function openChatWindow(chatId, type, targetUid, targetData) {
             activeChatId = chatId;
             activeChatType = type;
             activeChatTargetUid = targetUid;
 
-            document.getElementById('chat-target-name').textContent = title;
-            document.getElementById('chat-target-avatar').src = avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${chatId}`;
-            document.getElementById('chat-target-sub').textContent = type === 'group' ? 'Group Chat' : 'Direct Conversation';
+            if (type === 'direct') {
+                document.getElementById('chat-target-name').textContent = targetData.displayName;
+                document.getElementById('chat-target-avatar').src = targetData.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${targetUid}`;
+                document.getElementById('btn-header-voice-call').classList.remove('hidden');
+                document.getElementById('btn-header-video-call').classList.remove('hidden');
+                document.getElementById('btn-menu-poll').classList.add('hidden');
+
+                set(ref(db, `userChats/${currentUser.uid}/${chatId}/unreadCount`), 0);
+
+                onValue(ref(db, `users/${targetUid}`), (snap) => {
+                    const data = snap.val();
+                    const presenceEl = document.getElementById('chat-target-presence');
+                    if (data && data.online) {
+                        presenceEl.innerHTML = `<span class="status-dot online"></span> Online`;
+                    } else {
+                        presenceEl.innerHTML = `<span class="status-dot offline"></span> Last seen recently`;
+                    }
+                });
+            } else {
+                activeGroupData = targetData;
+                document.getElementById('chat-target-name').textContent = targetData.groupName;
+                document.getElementById('chat-target-avatar').src = targetData.groupIcon || `https://api.dicebear.com/7.x/identicon/svg?seed=${chatId}`;
+                document.getElementById('chat-target-presence').textContent = `${targetData.memberCount || 1} members`;
+                document.getElementById('btn-header-voice-call').classList.remove('hidden'); // Group Voice Call
+                document.getElementById('btn-header-video-call').classList.add('hidden');
+                document.getElementById('btn-menu-poll').classList.remove('hidden');
+            }
+
             document.getElementById('chat-window').classList.remove('hidden');
 
-            const messagesRef = ref(db, type === 'group' ? `groups/${chatId}/messages` : `chats/${chatId}/messages`);
+            // Typing Indicator Listener
+            onValue(ref(db, `chats/${chatId}/typing/${currentUser.uid}`), (snap) => {
+                const indicator = document.getElementById('chat-typing-indicator');
+                if (snap.exists() && snap.val() === true) indicator.classList.remove('hidden');
+                else indicator.classList.add('hidden');
+            });
+
+            // Listen for Messages
+            const messagesRef = ref(db, `chats/${chatId}/messages`);
             if (activeChatListener) activeChatListener();
 
             activeChatListener = onValue(messagesRef, (snap) => {
                 const container = document.getElementById('chat-messages-container');
                 container.innerHTML = "";
                 if (snap.exists()) {
-                    snap.forEach((child) => renderMessageBubble(child.key, child.val()));
+                    snap.forEach((child) => {
+                        const msg = child.val();
+                        renderMessageBubble(msg, child.key);
+                    });
                     container.scrollTop = container.scrollHeight;
                 }
             });
@@ -1240,240 +1279,394 @@
 
         window.closeChatWindow = () => {
             document.getElementById('chat-window').classList.add('hidden');
+            if (activeChatListener) off(ref(db, `chats/${activeChatId}/messages`));
             activeChatId = null;
-            activeChatType = null;
             activeChatTargetUid = null;
+            activeGroupData = null;
         };
 
-        function renderMessageBubble(msgId, msg) {
+        function renderMessageBubble(msg, msgKey) {
             const container = document.getElementById('chat-messages-container');
             const isSelf = msg.senderUid === currentUser.uid;
 
             const bubble = document.createElement('div');
             bubble.className = `msg-bubble ${isSelf ? 'msg-self' : 'msg-other'}`;
 
-            let contentHtml = "";
+            let bodyContent = "";
 
             if (msg.deleted) {
-                contentHtml = `<i style="opacity:0.7;"><i class="fas fa-ban"></i> This message was deleted.</i>`;
-            } else if (msg.type === 'text') {
-                contentHtml = `<p>${escapeHtml(msg.text)} ${msg.edited ? '<span style="font-size:0.65rem; opacity:0.7;">(edited)</span>' : ''}</p>`;
-            } else if (msg.type === 'image') {
-                contentHtml = `<img src="${msg.mediaURL}" style="max-width:100%; border-radius:8px;" onclick="window.open('${msg.mediaURL}', '_blank')">`;
-            } else if (msg.type === 'video') {
-                contentHtml = `<video src="${msg.mediaURL}" controls style="max-width:100%; border-radius:8px;"></video>`;
-            } else if (msg.type === 'one-time') {
-                const isConsumed = msg.consumedBy && msg.consumedBy[currentUser.uid];
-                if (isConsumed) {
-                    contentHtml = `<div style="opacity:0.6; font-size:0.8rem;"><i class="fas fa-eye-slash"></i> 1-Time Media Already Viewed</div>`;
-                } else {
-                    contentHtml = `
-                        <div class="one-time-media-box" onclick="openOneTimeMedia('${msgId}', '${msg.mediaURL}', '${msg.mediaType}')">
-                            <i class="fas fa-eye" style="color:var(--primary); font-size:1.2rem;"></i>
-                            <div style="font-weight:700; font-size:0.8rem; margin-top:4px;">Tap to View 1-Time ${msg.mediaType.toUpperCase()}</div>
+                bodyContent = `<p style="font-style: italic; opacity: 0.7;"><i class="fas fa-ban"></i> This message was deleted.</p>`;
+            } else {
+                if (activeChatType === 'group' && !isSelf) {
+                    bodyContent += `<div class="msg-sender">${escapeHtml(msg.senderName)}</div>`;
+                }
+
+                if (msg.type === 'text') {
+                    bodyContent += `<p>${escapeHtml(msg.text)}</p>`;
+                } else if (msg.type === 'image') {
+                    bodyContent += `<img src="${msg.mediaURL}" class="msg-image" onclick="window.open('${msg.mediaURL}', '_blank')">`;
+                } else if (msg.type === 'video') {
+                    bodyContent += `<video src="${msg.mediaURL}" controls class="msg-video"></video>`;
+                } else if (msg.type === 'voice') {
+                    bodyContent += `
+                        <div class="voice-player">
+                            <button class="voice-btn" onclick="playAudio('${msg.mediaURL}', this)"><i class="fas fa-play"></i></button>
+                            <span style="font-size: 0.8rem;">Voice Note (${msg.duration || '00:00'})</span>
                         </div>
                     `;
+                } else if (msg.type === 'one-time-photo' || msg.type === 'one-time-video') {
+                    const isConsumed = msg.consumedBy && msg.consumedBy[currentUser.uid];
+                    bodyContent += `
+                        <div class="one-time-card ${isConsumed ? 'consumed' : ''}" onclick="openOneTimeMedia('${msgKey}', '${msg.mediaURL}', '${msg.type}')">
+                            <i class="fas ${isConsumed ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                            <span>${isConsumed ? 'Already Viewed' : 'View Once ' + (msg.type === 'one-time-photo' ? 'Photo' : 'Video')}</span>
+                        </div>
+                    `;
+                } else if (msg.type === 'poll') {
+                    bodyContent += renderPollMarkup(msgKey, msg.pollData);
                 }
-            } else if (msg.type === 'poll') {
-                contentHtml = renderPollMarkup(msgId, msg);
+            }
+
+            // Reactions UI
+            let reactionsMarkup = "";
+            if (msg.reactions) {
+                reactionsMarkup += `<div class="reactions-container">`;
+                const counts = {};
+                for (let uid in msg.reactions) {
+                    const emoji = msg.reactions[uid];
+                    counts[emoji] = (counts[emoji] || 0) + 1;
+                }
+                for (let emoji in counts) {
+                    reactionsMarkup += `<span class="reaction-chip" onclick="toggleReaction('${msgKey}', '${emoji}')">${emoji} ${counts[emoji]}</span>`;
+                }
+                reactionsMarkup += `</div>`;
             }
 
             bubble.innerHTML = `
-                ${!isSelf && activeChatType === 'group' ? `<div class="msg-sender-info">${escapeHtml(msg.senderName || 'Anonymous')}</div>` : ''}
-                ${contentHtml}
-                <div style="font-size:0.65rem; opacity:0.75; text-align:right; margin-top:4px;">
+                <div class="msg-actions-btn" onclick="openMessageActionsMenu('${msgKey}', '${msg.senderUid}', ${msg.deleted})"><i class="fas fa-ellipsis-h"></i></div>
+                ${bodyContent}
+                ${reactionsMarkup}
+                <span class="msg-time">
+                    ${msg.edited ? '<span>(edited)</span>' : ''}
                     ${formatTimestamp(msg.timestamp)}
-                    ${isSelf && !msg.deleted ? `<i class="fas fa-ellipsis-h" style="margin-left:6px; cursor:pointer;" onclick="openMessageActions('${msgId}', '${escapeHtml(msg.text || '')}')"></i>` : ''}
-                </div>
+                </span>
             `;
-
             container.appendChild(bubble);
         }
 
-        // Messaging Engine Actions
+        window.openMessageActionsMenu = (msgKey, senderUid, isDeleted) => {
+            if (isDeleted) return;
+            const isSelf = senderUid === currentUser.uid;
+            let options = "Choose action:\n1. React 👍\n2. React ❤️\n3. React 😂\n4. Report Message";
+            if (isSelf) options += "\n5. Edit Message\n6. Delete Message";
+
+            const choice = prompt(options);
+            if (choice === '1') toggleReaction(msgKey, '👍');
+            if (choice === '2') toggleReaction(msgKey, '❤️');
+            if (choice === '3') toggleReaction(msgKey, '😂');
+            if (choice === '4') openReportModal('message', msgKey);
+            if (choice === '5' && isSelf) editMessageProcess(msgKey);
+            if (choice === '6' && isSelf) deleteMessageProcess(msgKey);
+        };
+
+        window.toggleReaction = async (msgKey, emoji) => {
+            const reactionRef = ref(db, `chats/${activeChatId}/messages/${msgKey}/reactions/${currentUser.uid}`);
+            const snap = await get(reactionRef);
+            if (snap.exists() && snap.val() === emoji) {
+                await remove(reactionRef);
+            } else {
+                await set(reactionRef, emoji);
+            }
+        };
+
+        window.editMessageProcess = async (msgKey) => {
+            const msgSnap = await get(ref(db, `chats/${activeChatId}/messages/${msgKey}`));
+            if (!msgSnap.exists()) return;
+            const newText = prompt("Edit your message:", msgSnap.val().text);
+            if (newText && newText.trim()) {
+                await update(ref(db, `chats/${activeChatId}/messages/${msgKey}`), {
+                    text: newText.trim(),
+                    edited: true,
+                    editedAt: serverTimestamp()
+                });
+                showToast("Message edited.");
+            }
+        };
+
+        window.deleteMessageProcess = async (msgKey) => {
+            if (confirm("Delete this message?")) {
+                await update(ref(db, `chats/${activeChatId}/messages/${msgKey}`), {
+                    deleted: true,
+                    deletedAt: serverTimestamp(),
+                    deletedBy: currentUser.uid,
+                    text: ""
+                });
+                showToast("Message deleted.");
+            }
+        };
+
+        // --- SEND TEXT MESSAGE ---
         window.sendTextMessage = async () => {
             const input = document.getElementById('chat-text-input');
             const text = input.value.trim();
             if (!text || !activeChatId) return;
 
             input.value = "";
-            const path = activeChatType === 'group' ? `groups/${activeChatId}/messages` : `chats/${activeChatId}/messages`;
+            clearTypingState();
 
             const msgData = {
                 senderUid: currentUser.uid,
                 senderName: currentUserProfile.displayName,
-                type: 'text',
+                senderPhoto: currentUserProfile.photoURL,
+                type: "text",
                 text: text,
                 timestamp: serverTimestamp()
             };
 
-            await push(ref(db, path), msgData);
+            await push(ref(db, `chats/${activeChatId}/messages`), msgData);
+            updateChatMetadata(text, 'text');
         };
 
-        window.openMessageActions = (msgId, text) => {
-            const action = prompt("Message Options:\n1. Edit Message\n2. Delete Message\nEnter choice (1-2):");
-            if (action === '1') {
-                const newText = prompt("Edit message text:", text);
-                if (newText && newText !== text) {
-                    const path = activeChatType === 'group' ? `groups/${activeChatId}/messages/${msgId}` : `chats/${activeChatId}/messages/${msgId}`;
-                    update(ref(db, path), { text: newText, edited: true });
-                }
-            } else if (action === '2') {
-                if (confirm("Delete this message?")) {
-                    const path = activeChatType === 'group' ? `groups/${activeChatId}/messages/${msgId}` : `chats/${activeChatId}/messages/${msgId}`;
-                    update(ref(db, path), { deleted: true, text: "" });
-                }
+        async function updateChatMetadata(lastText, type) {
+            const meta = {
+                lastMessage: lastText,
+                lastMessageType: type,
+                lastMessageTimestamp: serverTimestamp()
+            };
+
+            if (activeChatType === 'direct') {
+                await update(ref(db, `chats/${activeChatId}/metadata`), meta);
+                await update(ref(db, `userChats/${currentUser.uid}/${activeChatId}`), meta);
+                const targetChatRef = ref(db, `userChats/${activeChatTargetUid}/${activeChatId}`);
+                const targetSnap = await get(targetChatRef);
+                let unread = 1;
+                if (targetSnap.exists() && targetSnap.val().unreadCount) unread = targetSnap.val().unreadCount + 1;
+                await update(targetChatRef, { ...meta, unreadCount: unread });
+            } else {
+                await update(ref(db, `groups/${activeChatId}`), meta);
             }
-        };
+        }
 
-        // One-Time Media Pipeline
-        window.triggerOneTimeMedia = (type) => {
-            pendingOneTimeMedia = true;
-            triggerFileInput(type === 'image' ? 'image/*' : 'video/*');
-            closeModal('modal-attachments');
-        };
+        // --- ATTACHMENTS & MEDIA HANDLERS ---
+        window.toggleAttachmentMenu = () => document.getElementById('attachment-menu').classList.toggle('hidden');
 
-        window.triggerFileInput = (accept) => {
-            const input = document.getElementById('generic-file-input');
-            input.accept = accept;
-            input.click();
-            closeModal('modal-attachments');
-        };
-
-        window.handleFileSelected = async (e) => {
+        window.handleChatImageUpload = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
-            const isVideo = file.type.startsWith('video/');
-            const maxMb = isVideo ? 20 : 1;
-
-            if (file.size > maxMb * 1024 * 1024) {
-                return showToast(`File exceeds limit of ${maxMb} MB.`, "error");
-            }
-
-            showToast("Uploading media...", "info");
+            document.getElementById('attachment-menu').classList.add('hidden');
+            showToast("Uploading image...", "info");
             try {
-                const url = await uploadToCloudinary(file, maxMb);
-                const path = activeChatType === 'group' ? `groups/${activeChatId}/messages` : `chats/${activeChatId}/messages`;
-
-                const msgData = {
+                const url = await uploadToCloudinary(file, 1);
+                await push(ref(db, `chats/${activeChatId}/messages`), {
                     senderUid: currentUser.uid,
                     senderName: currentUserProfile.displayName,
-                    type: pendingOneTimeMedia ? 'one-time' : (isVideo ? 'video' : 'image'),
+                    type: "image",
                     mediaURL: url,
-                    mediaType: isVideo ? 'video' : 'image',
                     timestamp: serverTimestamp()
-                };
-
-                await push(ref(db, path), msgData);
-                pendingOneTimeMedia = false;
-                showToast("Media sent!");
-            } catch (err) { showToast("Upload failed.", "error"); }
+                });
+                await updateChatMetadata("📷 Image", "image");
+            } catch (err) {
+                showToast(err.message || "Failed to upload image.", "error");
+            }
         };
 
-        window.openOneTimeMedia = async (msgId, url, type) => {
-            const path = activeChatType === 'group' 
-                ? `groups/${activeChatId}/messages/${msgId}/consumedBy/${currentUser.uid}` 
-                : `chats/${activeChatId}/messages/${msgId}/consumedBy/${currentUser.uid}`;
+        window.handleChatVideoUpload = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) return showToast("Video must be 20 MB or smaller.", "error");
 
-            await set(ref(db, path), true);
-            window.open(url, '_blank');
+            document.getElementById('attachment-menu').classList.add('hidden');
+            showToast("Uploading video (&lt; 20MB)...", "info");
+            try {
+                const url = await uploadToCloudinary(file, 20);
+                await push(ref(db, `chats/${activeChatId}/messages`), {
+                    senderUid: currentUser.uid,
+                    senderName: currentUserProfile.displayName,
+                    type: "video",
+                    mediaURL: url,
+                    timestamp: serverTimestamp()
+                });
+                await updateChatMetadata("🎥 Video", "video");
+            } catch (err) {
+                showToast(err.message || "Failed to upload video.", "error");
+            }
         };
 
-        // Poll System
+        window.handleOneTimeUpload = async (e, mode) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('attachment-menu').classList.add('hidden');
+            showToast(`Uploading view-once ${mode}...`, "info");
+            try {
+                const url = await uploadToCloudinary(file, mode === 'photo' ? 1 : 20);
+                await push(ref(db, `chats/${activeChatId}/messages`), {
+                    senderUid: currentUser.uid,
+                    senderName: currentUserProfile.displayName,
+                    type: mode === 'photo' ? 'one-time-photo' : 'one-time-video',
+                    mediaURL: url,
+                    timestamp: serverTimestamp(),
+                    consumedBy: {}
+                });
+                await updateChatMetadata("👁 View Once Media", "media");
+            } catch (err) {
+                showToast("Failed to upload view-once media.", "error");
+            }
+        };
+
+        window.openOneTimeMedia = async (msgKey, url, type) => {
+            const msgRef = ref(db, `chats/${activeChatId}/messages/${msgKey}`);
+            const msgSnap = await get(msgRef);
+            if (!msgSnap.exists()) return;
+
+            const msgData = msgSnap.val();
+            if (msgData.consumedBy && msgData.consumedBy[currentUser.uid]) {
+                return showToast("Photo/Video already viewed.", "warning");
+            }
+
+            // Consume media atomically
+            await set(ref(db, `chats/${activeChatId}/messages/${msgKey}/consumedBy/${currentUser.uid}`), true);
+
+            const container = document.getElementById('one-time-media-container');
+            if (type === 'one-time-photo') {
+                container.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 100%;" oncontextmenu="return false;">`;
+            } else {
+                container.innerHTML = `<video src="${url}" autoplay controls controlsList="nodownload" style="max-width: 100%; max-height: 100%;"></video>`;
+            }
+
+            document.getElementById('modal-one-time-viewer').classList.remove('hidden');
+        };
+
+        window.closeOneTimeViewer = () => {
+            document.getElementById('one-time-media-container').innerHTML = "";
+            document.getElementById('modal-one-time-viewer').classList.add('hidden');
+        };
+
+        // --- POLLS IN GROUPS ---
         window.openCreatePollModal = () => {
+            document.getElementById('attachment-menu').classList.add('hidden');
             document.getElementById('modal-create-poll').classList.remove('hidden');
-            closeModal('modal-attachments');
         };
 
         window.addPollOptionInput = () => {
             const container = document.getElementById('poll-options-container');
-            if (container.children.length >= 10) return showToast("Max 10 options allowed.", "error");
-            const input = document.createElement('input');
-            input.type = "text";
-            input.className = "poll-option-input";
-            input.placeholder = `Option ${container.children.length + 1}`;
-            input.maxLength = 40;
-            container.appendChild(input);
+            const count = container.querySelectorAll('.poll-opt-input').length + 1;
+            if (count > 10) return showToast("Maximum 10 options allowed.", "error");
+
+            const div = document.createElement('div');
+            div.className = "input-group";
+            div.innerHTML = `<label>Option ${count}</label><input type="text" class="poll-opt-input" placeholder="Option ${count}" maxlength="60">`;
+            container.appendChild(div);
         };
 
         window.submitCreatePoll = async () => {
             const question = document.getElementById('poll-question').value.trim();
-            const inputs = document.querySelectorAll('.poll-option-input');
+            const optionInputs = document.querySelectorAll('.poll-opt-input');
             const options = [];
-            inputs.forEach(i => { if (i.value.trim()) options.push(i.value.trim()); });
+            optionInputs.forEach(i => { if (i.value.trim()) options.push(i.value.trim()); });
 
-            if (!question || options.length < 2) return showToast("Poll requires a question and at least 2 options.", "error");
+            if (!question) return showToast("Poll question is required.", "error");
+            if (options.length < 2) return showToast("A poll needs at least 2 options.", "error");
 
-            const path = activeChatType === 'group' ? `groups/${activeChatId}/messages` : `chats/${activeChatId}/messages`;
             const pollData = {
-                senderUid: currentUser.uid,
-                type: 'poll',
                 question: question,
-                options: options.map(opt => ({ text: opt, votes: 0 })),
-                timestamp: serverTimestamp()
+                options: options.map((opt, idx) => ({ id: idx, text: opt, votes: 0 })),
+                creatorUid: currentUser.uid,
+                createdAt: serverTimestamp(),
+                totalVotes: 0
             };
 
-            await push(ref(db, path), pollData);
+            await push(ref(db, `chats/${activeChatId}/messages`), {
+                senderUid: currentUser.uid,
+                senderName: currentUserProfile.displayName,
+                type: "poll",
+                pollData: pollData,
+                timestamp: serverTimestamp()
+            });
+
             closeModal('modal-create-poll');
             showToast("Poll posted!");
         };
 
-        function renderPollMarkup(msgId, msg) {
-            let html = `<div class="poll-box"><strong><i class="fas fa-poll"></i> ${escapeHtml(msg.question)}</strong>`;
-            
-            (msg.options || []).forEach((opt, idx) => {
-                const totalVotes = (msg.votes ? Object.keys(msg.votes).length : 0) || 1;
-                const optionVotes = msg.votes ? Object.values(msg.votes).filter(v => v === idx).length : 0;
-                const percent = Math.round((optionVotes / totalVotes) * 100);
+        function renderPollMarkup(msgKey, poll) {
+            let optionsHtml = "";
+            const total = poll.totalVotes || 0;
 
-                html += `
-                    <div class="poll-option-btn" onclick="votePoll('${msgId}', ${idx})">
-                        <div class="poll-progress" style="width: ${percent}%;"></div>
-                        <span style="position:relative; z-index:1;">${escapeHtml(opt.text)}</span>
-                        <span style="position:relative; z-index:1; font-weight:bold; font-size:0.75rem;">${percent}%</span>
+            poll.options.forEach((opt) => {
+                const count = opt.votes || 0;
+                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                optionsHtml += `
+                    <div class="poll-option" onclick="voteInPoll('${msgKey}', ${opt.id})">
+                        <div class="poll-option-fill" style="width: ${pct}%;"></div>
+                        <div class="poll-option-text">
+                            <span>${escapeHtml(opt.text)}</span>
+                            <span>${count} (${pct}%)</span>
+                        </div>
                     </div>
                 `;
             });
 
-            html += `</div>`;
-            return html;
+            return `
+                <div class="poll-card">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 8px;"><i class="fas fa-poll" style="color: var(--primary);"></i> ${escapeHtml(poll.question)}</h4>
+                    ${optionsHtml}
+                    <span style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-top: 8px;">Total Votes: ${total}</span>
+                </div>
+            `;
         }
 
-        window.votePoll = async (msgId, optionIndex) => {
-            const path = activeChatType === 'group' 
-                ? `groups/${activeChatId}/messages/${msgId}/votes/${currentUser.uid}` 
-                : `chats/${activeChatId}/messages/${msgId}/votes/${currentUser.uid}`;
+        window.voteInPoll = async (msgKey, optionId) => {
+            const pollRef = ref(db, `chats/${activeChatId}/messages/${msgKey}/pollData`);
+            const snap = await get(pollRef);
+            if (!snap.exists()) return;
 
-            await set(ref(db, path), optionIndex);
+            const poll = snap.val();
+            poll.votes = poll.votes || {};
+
+            if (poll.votes[currentUser.uid] !== undefined) {
+                return showToast("You have already voted in this poll.", "warning");
+            }
+
+            poll.votes[currentUser.uid] = optionId;
+            poll.options[optionId].votes = (poll.options[optionId].votes || 0) + 1;
+            poll.totalVotes = (poll.totalVotes || 0) + 1;
+
+            await update(pollRef, poll);
+            showToast("Vote recorded!");
         };
 
-        // WebRTC Experimental Calling Engine
-        window.startAudioCall = () => initiateWebRTCCall('audio');
-        window.startVideoCall = () => initiateWebRTCCall('video');
+        // --- EXPERIMENTAL WEBRTC VOICE & VIDEO CALLING ENGINE ---
+        window.initiateCall = async (callType) => {
+            if (!activeChatId) return;
 
-        async function initiateWebRTCCall(mode) {
-            if (!activeChatTargetUid && activeChatType !== 'group') return showToast("Select a direct contact for calling.", "warning");
+            document.getElementById('call-title').textContent = `${callType === 'voice' ? 'Voice' : 'Video'} Call - Experimental`;
+            document.getElementById('call-status-label').textContent = "Requesting media access...";
             document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('call-status-title').textContent = "Calling...";
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: mode === 'video' });
-                document.getElementById('video-local').srcObject = localStream;
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: callType === 'video'
+                });
 
-                peerConnection = new RTCPeerConnection(rtcConfig);
+                document.getElementById('local-video').srcObject = localStream;
+                document.getElementById('remote-video-container').style.display = callType === 'video' ? 'block' : 'none';
+
+                // Setup Signaling Reference
+                const callRef = push(ref(db, 'webrtcCalls'));
+                const callId = callRef.key;
+                activeCallSession = { callId, callType };
+
+                peerConnection = new RTCPeerConnection(rtcConfiguration);
+
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
                 peerConnection.ontrack = (e) => {
-                    document.getElementById('video-remote').srcObject = e.streams[0];
+                    document.getElementById('remote-video').srcObject = e.streams[0];
                 };
-
-                const callRef = push(ref(db, 'webrtcCalls'));
-                activeCallId = callRef.key;
 
                 peerConnection.onicecandidate = (e) => {
                     if (e.candidate) {
-                        push(ref(db, `webrtcCalls/${activeCallId}/callerCandidates`), e.candidate.toJSON());
+                        push(ref(db, `webrtcCalls/${callId}/callerCandidates`), e.candidate.toJSON());
                     }
                 };
 
@@ -1481,67 +1674,93 @@
                 await peerConnection.setLocalDescription(offer);
 
                 await set(callRef, {
+                    callId,
+                    callType,
                     callerUid: currentUser.uid,
-                    targetUid: activeChatTargetUid || activeChatId,
-                    type: mode,
+                    callerName: currentUserProfile.displayName,
+                    targetUid: activeChatTargetUid,
+                    chatId: activeChatId,
                     offer: { type: offer.type, sdp: offer.sdp },
-                    status: 'calling'
+                    status: 'calling',
+                    createdAt: serverTimestamp()
                 });
 
+                document.getElementById('call-status-label').textContent = "Ringing...";
+
                 // Listen for Answer
-                onValue(ref(db, `webrtcCalls/${activeCallId}/answer`), (snap) => {
-                    const answer = snap.val();
-                    if (answer && !peerConnection.currentRemoteDescription) {
-                        peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-                        document.getElementById('call-status-title').textContent = "Connected";
+                onValue(ref(db, `webrtcCalls/${callId}/answer`), async (snap) => {
+                    if (snap.exists() && peerConnection.signalingState !== "closed") {
+                        const answer = snap.val();
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+                        document.getElementById('call-status-label').textContent = "Connected";
                     }
                 });
 
-                // Listen for Remote Candidates
-                onValue(ref(db, `webrtcCalls/${activeCallId}/calleeCandidates`), (snap) => {
-                    snap.forEach(child => {
-                        peerConnection.addIceCandidate(new RTCIceCandidate(child.val()));
-                    });
+                // Listen for ICE Candidates
+                onValue(ref(db, `webrtcCalls/${callId}/calleeCandidates`), (snap) => {
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            peerConnection.addIceCandidate(new RTCIceCandidate(child.val()));
+                        });
+                    }
+                });
+
+                // Listen for Status Changes
+                onValue(ref(db, `webrtcCalls/${callId}/status`), (snap) => {
+                    if (snap.val() === 'ended' || snap.val() === 'declined') {
+                        endCallLocally();
+                        showToast(`Call ${snap.val()}.`, "info");
+                    }
                 });
 
             } catch (err) {
-                showToast("Media access denied or unavailable.", "error");
-                endCurrentCall();
+                showToast("Camera/Microphone access denied or unavailable.", "error");
+                endCallLocally();
             }
-        }
+        };
 
         function listenForIncomingCalls(uid) {
             onValue(ref(db, 'webrtcCalls'), (snap) => {
-                snap.forEach(child => {
+                if (!snap.exists()) return;
+                snap.forEach((child) => {
                     const call = child.val();
                     if (call.targetUid === uid && call.status === 'calling') {
-                        if (confirm(`Incoming WebRTC ${call.type.toUpperCase()} Call. Accept?`)) {
-                            acceptIncomingCall(child.key, call);
+                        if (confirm(`Incoming ${call.callType} call from ${call.callerName}. Accept?`)) {
+                            acceptIncomingCall(call);
+                        } else {
+                            update(ref(db, `webrtcCalls/${call.callId}`), { status: 'declined' });
                         }
                     }
                 });
             });
         }
 
-        async function acceptIncomingCall(callId, call) {
-            activeCallId = callId;
+        async function acceptIncomingCall(call) {
+            document.getElementById('call-title').textContent = `${call.callType === 'voice' ? 'Voice' : 'Video'} Call - Experimental`;
+            document.getElementById('call-status-label').textContent = "Connecting...";
             document.getElementById('call-overlay').classList.remove('hidden');
-            document.getElementById('call-status-title').textContent = "Connecting...";
+
+            activeCallSession = { callId: call.callId, callType: call.callType };
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: call.type === 'video' });
-                document.getElementById('video-local').srcObject = localStream;
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: call.callType === 'video'
+                });
 
-                peerConnection = new RTCPeerConnection(rtcConfig);
+                document.getElementById('local-video').srcObject = localStream;
+                document.getElementById('remote-video-container').style.display = call.callType === 'video' ? 'block' : 'none';
+
+                peerConnection = new RTCPeerConnection(rtcConfiguration);
                 localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
                 peerConnection.ontrack = (e) => {
-                    document.getElementById('video-remote').srcObject = e.streams[0];
+                    document.getElementById('remote-video').srcObject = e.streams[0];
                 };
 
                 peerConnection.onicecandidate = (e) => {
                     if (e.candidate) {
-                        push(ref(db, `webrtcCalls/${callId}/calleeCandidates`), e.candidate.toJSON());
+                        push(ref(db, `webrtcCalls/${call.callId}/calleeCandidates`), e.candidate.toJSON());
                     }
                 };
 
@@ -1549,160 +1768,319 @@
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
 
-                await update(ref(db, `webrtcCalls/${callId}`), {
+                await update(ref(db, `webrtcCalls/${call.callId}`), {
                     answer: { type: answer.type, sdp: answer.sdp },
                     status: 'connected'
                 });
 
-                onValue(ref(db, `webrtcCalls/${callId}/callerCandidates`), (snap) => {
-                    snap.forEach(child => {
-                        peerConnection.addIceCandidate(new RTCIceCandidate(child.val()));
-                    });
+                document.getElementById('call-status-label').textContent = "Connected";
+
+                // Listen for caller candidates
+                onValue(ref(db, `webrtcCalls/${call.callId}/callerCandidates`), (snap) => {
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            peerConnection.addIceCandidate(new RTCIceCandidate(child.val()));
+                        });
+                    }
                 });
 
-                document.getElementById('call-status-title').textContent = "Connected";
-
             } catch (err) {
-                showToast("Failed to connect call.", "error");
-                endCurrentCall();
+                showToast("Failed to join call.", "error");
+                endCallLocally();
             }
         }
 
-        window.endCurrentCall = () => {
-            if (peerConnection) peerConnection.close();
-            if (localStream) localStream.getTracks().forEach(t => t.stop());
-            if (activeCallId) remove(ref(db, `webrtcCalls/${activeCallId}`));
+        window.endCall = async () => {
+            if (activeCallSession) {
+                await update(ref(db, `webrtcCalls/${activeCallSession.callId}`), { status: 'ended' });
+            }
+            endCallLocally();
+        };
 
-            peerConnection = null;
-            localStream = null;
-            activeCallId = null;
-
+        function endCallLocally() {
+            if (peerConnection) { peerConnection.close(); peerConnection = null; }
+            if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
             document.getElementById('call-overlay').classList.add('hidden');
-            showToast("Call ended.");
-        };
-
-        window.toggleCallMute = () => {
-            if (!localStream) return;
-            const audioTrack = localStream.getAudioTracks()[0];
-            if (audioTrack) {
-                audioTrack.enabled = !audioTrack.enabled;
-                document.getElementById('call-btn-mute').style.background = audioTrack.enabled ? '#334155' : 'var(--error)';
-            }
-        };
-
-        window.toggleCallCamera = () => {
-            if (!localStream) return;
-            const videoTrack = localStream.getVideoTracks()[0];
-            if (videoTrack) {
-                videoTrack.enabled = !videoTrack.enabled;
-                document.getElementById('call-btn-cam').style.background = videoTrack.enabled ? '#334155' : 'var(--error)';
-            }
-        };
-
-        // Context Menu Engine
-        window.openChatContextMenu = () => {
-            if (activeChatType === 'group') {
-                openGroupManageModal();
-            } else {
-                const act = prompt("Direct Chat Options:\n1. Copy Quickk! ID\n2. Report User\nEnter choice (1-2):");
-                if (act === '1') copyMyId();
-                if (act === '2') showToast("Report submitted to moderation.");
-            }
-        };
-
-        function openGroupManageModal() {
-            document.getElementById('modal-group-manage').classList.remove('hidden');
-            loadGroupMembersList();
+            activeCallSession = null;
         }
 
-        window.switchGroupManageTab = (tab) => {
-            ['members', 'add', 'settings'].forEach(t => {
-                document.getElementById(`gm-tab-${t}`).classList.toggle('active', t === tab);
-                document.getElementById(`gm-panel-${t}`).classList.toggle('hidden', t !== tab);
-            });
+        window.toggleCallMic = () => {
+            if (localStream) {
+                const track = localStream.getAudioTracks()[0];
+                if (track) {
+                    track.enabled = !track.enabled;
+                    document.getElementById('btn-toggle-mic').style.opacity = track.enabled ? '1' : '0.5';
+                }
+            }
         };
 
-        async function loadGroupMembersList() {
-            const list = document.getElementById('gm-member-list');
-            list.innerHTML = "";
+        window.toggleCallCam = () => {
+            if (localStream) {
+                const track = localStream.getVideoTracks()[0];
+                if (track) {
+                    track.enabled = !track.enabled;
+                    document.getElementById('btn-toggle-cam').style.opacity = track.enabled ? '1' : '0.5';
+                }
+            }
+        };
 
-            const membersSnap = await get(ref(db, `groups/${activeChatId}/members`));
-            const members = membersSnap.val() || {};
+        // --- GROUP DETAILS & ADMIN MANAGEMENT DRAWER ---
+        window.openChatOrGroupDetails = async () => {
+            if (activeChatType !== 'group') return;
 
+            document.getElementById('gd-name').textContent = activeGroupData.groupName;
+            document.getElementById('gd-desc').textContent = activeGroupData.description || "No description.";
+            document.getElementById('gd-icon').src = activeGroupData.groupIcon;
+            document.getElementById('gd-count').textContent = `${activeGroupData.memberCount || 1} / 100 Members`;
+
+            const isOwner = activeGroupData.ownerUid === currentUser.uid;
+            if (isOwner) {
+                document.getElementById('btn-gd-delete').classList.remove('hidden');
+                document.getElementById('btn-gd-requests').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-gd-delete').classList.add('hidden');
+                document.getElementById('btn-gd-requests').classList.add('hidden');
+            }
+
+            loadGroupMembersDirectory();
+            document.getElementById('drawer-group-details').classList.add('active');
+        };
+
+        async function loadGroupMembersDirectory() {
+            const listContainer = document.getElementById('gd-members-list');
+            listContainer.innerHTML = "";
+
+            const membersSnap = await get(ref(db, `groupMembers/${activeChatId}`));
+            if (!membersSnap.exists()) return;
+
+            const members = membersSnap.val();
             for (let uid in members) {
                 const userSnap = await get(ref(db, `users/${uid}`));
-                const user = userSnap.val() || { displayName: "Member" };
+                if (!userSnap.exists()) continue;
+                const user = userSnap.val();
+                const role = members[uid].role || 'member';
 
-                const item = document.createElement('div');
-                item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid var(--border);";
-                item.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <img src="${user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${uid}`}" style="width:32px; height:32px; border-radius:50%;">
+                const div = document.createElement('div');
+                div.className = "sidebar-user-card";
+                div.style.padding = "8px";
+                div.style.textAlign = "left";
+                div.style.display = "flex";
+                div.style.alignItems = "center";
+                div.style.justifySpaceBetween = "space-between";
+
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${user.photoURL}" style="width: 32px; height: 32px; border-radius: 50%;">
                         <div>
-                            <div style="font-size:0.85rem; font-weight:700;">${escapeHtml(user.displayName)}</div>
-                            <span class="role-badge role-${members[uid].role}">${members[uid].role.toUpperCase()}</span>
+                            <div style="font-size: 0.85rem; font-weight: bold;">${escapeHtml(user.displayName)} <span class="badge badge-${role}">${role}</span></div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">ID: ${user.anonymousId}</div>
                         </div>
                     </div>
                 `;
-                list.appendChild(item);
+                listContainer.appendChild(div);
             }
         }
 
-        window.addMemberByQuickkId = async () => {
-            const idInput = document.getElementById('gm-add-id').value.trim();
-            if (!/^\d{8}$/.test(idInput)) return showToast("Enter a valid 8-digit ID.", "error");
+        window.openAddMemberModal = () => document.getElementById('modal-add-member').classList.remove('hidden');
 
-            const uidSnap = await get(ref(db, `anonymousIds/${idInput}`));
-            if (!uidSnap.exists()) return showToast("User not found.", "error");
+        window.submitAddMemberToGroup = async () => {
+            const idInput = document.getElementById('add-member-id-input').value.trim();
+            if (!/^\d{8}$/.test(idInput)) return showToast("Enter a valid 8-digit Quickk! ID.", "error");
 
-            const targetUid = uidSnap.val();
-            await set(ref(db, `groups/${activeChatId}/members/${targetUid}`), { role: 'member', joinedAt: serverTimestamp() });
-            await set(ref(db, `userGroups/${targetUid}/${activeChatId}`), true);
+            const snap = await get(ref(db, `anonymousIds/${idInput}`));
+            if (!snap.exists()) return showToast("User not found.", "error");
 
-            showToast("Member added!");
-            loadGroupMembersList();
+            const targetUid = snap.val();
+            const memberSnap = await get(ref(db, `groupMembers/${activeChatId}/${targetUid}`));
+            if (memberSnap.exists()) return showToast("This user is already a member.", "warning");
+
+            // Check capacity (Limit 100)
+            const groupSnap = await get(ref(db, `groups/${activeChatId}`));
+            if (groupSnap.val().memberCount >= 100) return showToast("This group is full.", "error");
+
+            // Send Group Invite
+            const inviteRef = push(ref(db, `groupInvites/${targetUid}`));
+            await set(inviteRef, {
+                groupId: activeChatId,
+                inviterUid: currentUser.uid,
+                status: 'pending',
+                timestamp: serverTimestamp()
+            });
+
+            closeModal('modal-add-member');
+            showToast("Group invitation sent!");
         };
 
-        window.copyGroupInviteLink = () => {
-            navigator.clipboard.writeText(`https://quickk.app/join?g=${activeChatId}`);
-            showToast("Group invite link copied!");
+        window.respondToGroupInvite = async (inviteId, groupId, accept) => {
+            if (accept) {
+                await set(ref(db, `groupMembers/${groupId}/${currentUser.uid}`), { role: 'member', joinedAt: serverTimestamp() });
+                await set(ref(db, `userGroups/${currentUser.uid}/${groupId}`), { role: 'member', joinedAt: serverTimestamp() });
+                
+                const groupSnap = await get(ref(db, `groups/${groupId}`));
+                const currentCount = groupSnap.val().memberCount || 1;
+                await update(ref(db, `groups/${groupId}`), { memberCount: currentCount + 1 });
+                
+                showToast("Joined group successfully!");
+            }
+            await remove(ref(db, `groupInvites/${currentUser.uid}/${inviteId}`));
+            loadDashboardContent();
         };
 
-        window.confirmDeleteGroup = async () => {
-            if (confirm("Delete this group permanently? This cannot be undone.")) {
-                await remove(ref(db, `groups/${activeChatId}`));
+        window.leaveGroupProcess = async () => {
+            if (activeGroupData.ownerUid === currentUser.uid && activeGroupData.memberCount === 1) {
+                return showToast("You are the only member. You must delete the group instead.", "warning");
+            }
+
+            if (confirm("Leave this group?")) {
+                await remove(ref(db, `groupMembers/${activeChatId}/${currentUser.uid}`));
                 await remove(ref(db, `userGroups/${currentUser.uid}/${activeChatId}`));
-                closeModal('modal-group-manage');
+                await update(ref(db, `groups/${activeChatId}`), { memberCount: Math.max(1, activeGroupData.memberCount - 1) });
+
+                closeDrawer('drawer-group-details');
                 closeChatWindow();
-                loadDashboardList();
-                showToast("Group deleted.");
+                showToast("You left the group.");
+                loadDashboardContent();
             }
         };
 
-        // User Search
-        window.searchUserById = async () => {
-            const idInput = document.getElementById('search-id-input').value.trim();
-            if (!/^\d{8}$/.test(idInput)) return showToast("Enter valid 8-digit ID.", "error");
+        window.deleteGroupProcess = async () => {
+            if (confirm("Delete this group permanently? This cannot be undone.")) {
+                await remove(ref(db, `groups/${activeChatId}`));
+                await remove(ref(db, `groupMembers/${activeChatId}`));
+                await remove(ref(db, `userGroups/${currentUser.uid}/${activeChatId}`));
 
-            const uidSnap = await get(ref(db, `anonymousIds/${idInput}`));
-            if (!uidSnap.exists()) return showToast("User not found.", "warning");
-
-            const targetUid = uidSnap.val();
-            const userSnap = await get(ref(db, `users/${targetUid}`));
-            const targetUser = userSnap.val();
-
-            document.getElementById('sr-avatar').src = targetUser.photoURL;
-            document.getElementById('sr-name').textContent = targetUser.displayName;
-            document.getElementById('sr-bio').textContent = targetUser.bio || "No bio provided.";
-            document.getElementById('sr-start-btn').onclick = () => {
-                const chatId = [currentUser.uid, targetUid].sort().join("_");
-                openChatWindow(chatId, 'direct', targetUid, targetUser.displayName, targetUser.photoURL);
-            };
-
-            document.getElementById('search-result-card').classList.remove('hidden');
+                closeDrawer('drawer-group-details');
+                closeChatWindow();
+                showToast("Group deleted.");
+                loadDashboardContent();
+            }
         };
 
-        // Profile View & Settings Helpers
+        window.openShareInviteModal = () => {
+            const token = activeChatId;
+            document.getElementById('invite-link-input').value = `QUICKK-INVITE-${token}`;
+            document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=QUICKK-INVITE-${token}`;
+            document.getElementById('modal-share-invite').classList.remove('hidden');
+        };
+
+        window.copyInviteToken = () => {
+            navigator.clipboard.writeText(document.getElementById('invite-link-input').value);
+            showToast("Invite token copied!");
+        };
+
+        // --- TYPING INDICATORS & VOICE RECORDER ---
+        window.handleTypingEvent = () => {
+            if (!activeChatId) return;
+            set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), true);
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(clearTypingState, 2000);
+        };
+
+        function clearTypingState() {
+            if (activeChatId && currentUser) {
+                set(ref(db, `chats/${activeChatId}/typing/${currentUser.uid}`), false);
+            }
+        }
+
+        window.toggleVoiceRecording = async () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                let mimeType = 'audio/webm';
+                if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType });
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    voiceBlob = new Blob(audioChunks, { type: mimeType });
+                    clearInterval(voiceTimerInterval);
+                    document.getElementById('voice-audio-preview').src = URL.createObjectURL(voiceBlob);
+                    document.getElementById('modal-voice-preview').classList.remove('hidden');
+                    stream.getTracks().forEach(t => t.stop());
+                };
+
+                mediaRecorder.start();
+                voiceSeconds = 0;
+                document.getElementById('voice-record-btn').style.color = "var(--error)";
+                showToast("Recording started...", "info");
+
+                voiceTimerInterval = setInterval(() => {
+                    voiceSeconds++;
+                    document.getElementById('voice-duration-label').textContent = formatDuration(voiceSeconds);
+                }, 1000);
+
+            } catch (err) {
+                showToast("Microphone access denied.", "error");
+            }
+        };
+
+        window.cancelVoiceNote = () => {
+            voiceBlob = null;
+            document.getElementById('voice-record-btn').style.color = "var(--text-muted)";
+            closeModal('modal-voice-preview');
+        };
+
+        window.uploadAndSendVoiceNote = async () => {
+            if (!voiceBlob) return;
+            showToast("Sending voice note...", "info");
+            try {
+                const audioFile = new File([voiceBlob], "voicenote.webm", { type: voiceBlob.type });
+                const url = await uploadToCloudinary(audioFile, 1);
+
+                await push(ref(db, `chats/${activeChatId}/messages`), {
+                    senderUid: currentUser.uid,
+                    senderName: currentUserProfile.displayName,
+                    type: "voice",
+                    mediaURL: url,
+                    duration: formatDuration(voiceSeconds),
+                    timestamp: serverTimestamp()
+                });
+
+                await updateChatMetadata("🎤 Voice note", "voice");
+                closeModal('modal-voice-preview');
+                document.getElementById('voice-record-btn').style.color = "var(--text-muted)";
+                showToast("Voice note sent!");
+            } catch (err) {
+                showToast("Voice note upload failed.", "error");
+            }
+        };
+
+        // --- REPORTING MODAL ---
+        window.openReportModal = (type, targetId) => {
+            reportContext = { type, targetId };
+            document.getElementById('modal-report').classList.remove('hidden');
+        };
+
+        window.submitContentReport = async () => {
+            const cat = document.getElementById('report-category').value;
+            const desc = document.getElementById('report-description').value.trim();
+
+            const reportRef = push(ref(db, 'reports'));
+            await set(reportRef, {
+                reporterUid: currentUser.uid,
+                context: reportContext,
+                category: cat,
+                description: desc,
+                timestamp: serverTimestamp()
+            });
+
+            closeModal('modal-report');
+            showToast("Report submitted to moderation.");
+        };
+
+        window.blockUser = async (targetUid) => {
+            if (confirm("Are you sure you want to block this user?")) {
+                await set(ref(db, `blocks/${currentUser.uid}/${targetUid}`), true);
+                showToast("User blocked successfully.");
+            }
+        };
+
+        // --- PROFILE EDITING & HELPERS ---
         function populateProfileView() {
             if (!currentUserProfile) return;
             document.getElementById('my-profile-avatar').src = currentUserProfile.photoURL;
@@ -1714,18 +2092,33 @@
         window.updateProfileChanges = async () => {
             const name = document.getElementById('edit-name').value.trim();
             const bio = document.getElementById('edit-bio').value.trim();
-            if (name.length < 2) return showToast("Name too short.", "error");
 
-            await update(ref(db, `users/${currentUser.uid}`), { displayName: name, bio: bio });
-            currentUserProfile.displayName = name;
-            currentUserProfile.bio = bio;
-            updateSidebarAndNav();
-            showToast("Profile updated.");
+            if (name.length < 2 || name.length > 24) return showToast("Display name must be between 2 and 24 characters.", "error");
+
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    displayName: name,
+                    bio: bio,
+                    updatedAt: serverTimestamp()
+                });
+                currentUserProfile.displayName = name;
+                currentUserProfile.bio = bio;
+                updateSidebarAndNav();
+                showToast("Profile updated.");
+            } catch (err) {
+                showToast("Failed to update profile.", "error");
+            }
         };
 
         window.copyMyId = () => {
             navigator.clipboard.writeText(currentUserProfile.anonymousId);
             showToast("Quickk! ID copied.");
+        };
+
+        window.shareMyId = () => {
+            const shareText = `Find me on Quickk! using my anonymous ID: ${currentUserProfile.anonymousId}`;
+            if (navigator.share) navigator.share({ title: 'Quickk! ID', text: shareText });
+            else { navigator.clipboard.writeText(shareText); showToast("Share text copied."); }
         };
 
         window.applyThemePreference = (theme) => {
@@ -1735,17 +2128,28 @@
 
         const savedTheme = localStorage.getItem('quickk_theme') || 'light';
         applyThemePreference(savedTheme);
+        document.getElementById('setting-theme').value = savedTheme;
 
         function escapeHtml(text) {
             const div = document.createElement('div');
-            div.textContent = text;
+            div.textContent = text || "";
             return div.innerHTML;
         }
 
         function formatTimestamp(ts) {
             if (!ts) return "";
-            return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const date = new Date(ts);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
+
+        function formatDuration(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        window.addEventListener('online', () => document.getElementById('offline-notice').classList.add('hidden'));
+        window.addEventListener('offline', () => document.getElementById('offline-notice').classList.remove('hidden'));
 
     </script>
 </body>
